@@ -1,0 +1,47 @@
+//
+//Written by GowinSynthesis
+//Tool Version "V1.9.11.03 Education"
+//Sun Dec 21 15:55:52 2025
+
+//Source file index table:
+//file0 "\C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd"
+`pragma protect begin_protected
+`pragma protect version="2.3"
+`pragma protect author="default"
+`pragma protect author_info="default"
+`pragma protect encrypt_agent="GOWIN"
+`pragma protect encrypt_agent_info="GOWIN Encrypt Version 2.3"
+
+`pragma protect encoding=(enctype="base64", line_length=76, bytes=256)
+`pragma protect key_keyowner="GOWIN",key_keyname="GWK2023-09",key_method="rsa"
+`pragma protect key_block
+b+CkdDsjB8oNyRQl0L0jDzMBrBSJ46G70ut0zhrKDwhgR0M+L9e2K7FiT0gAaMeQ8BKYxhqK4bW7
+BQS/0KPxd6MsVF87DZ1KYwpbAkIaMWsHYEGQqPp8Gz2tKuC0ub/tWyW8aEtFMg2kYQE5+yXvbLMV
+d/ZAAuprsRyspc8e4IwjdhPi8ao9B77aG+L68r7MHXb+5zVpyjdWGAMBDE7xXwixC+Gp9E6DXuLE
+0x7JT+AN3C3seZmeoNB5mmF1BsPk2GXiNvYFnJse/kcHIyyFiKwDDRbksWoHCluC4cejxgrMPMCN
+AMKvRDL6Yl0497zM1wHC8L3N4nomc/OShQwdWg==
+
+`pragma protect encoding=(enctype="base64", line_length=76, bytes=1024)
+`pragma protect data_keyowner="default-ip-vendor"
+`pragma protect data_keyname="default-ip-key"
+`pragma protect data_method="aes128-cfb"
+`pragma protect data_block
+AuKLX2b8rustqOLmuNgj7TqkVZlWty+830OA68jH7TdGXmDFZH+f96Qjgk9WVCeNYDeVVc5RwiHx
+/zPs4RVJsVjAOrU4e406txOdQcugcmomoofEtlI26v3Cjr27Y1E5BIMl7BtG0ArCLT4dBJO7TXCa
+gy97XrzIGgxOQJtbXEcoMo277We2n8RUcl0Qnxe+gIcmXEp/7WrCsaKls/JYKhkZpyKwPuETrhN8
+vbG0/XnP18ijBWorxN4+j2+5whB6cPLb3hbwdm9YgiIBDBWvYjOx2nJ5TrM3qnUYdRQANRqBNLwR
+mobXRcEav5q5PPMrxuilgSeskQWhO3AIhy7SvMgpHKixcertpIO85X6fDa3s4i2gFyD7F2XUP8UV
+JefuxpTYY8s5/fIzAJIwwVOZa4oRtqDFlwGXByTer+DBCDoVRq/2aQQLjb2weOeKpq2DG+CE8WjA
+xEULEk7d03gMz0n52BdVLTgDEmQYF96FIJIbQr7A+1ri2qSQnlhkRMAb8xdd7tjGmXiPAIH8s4R6
+HA45oGt71AmsvolWQ1VaEzwAXumaWIeVSzTjB2U0Fzsx26CrIeWkYjV6gBPpRx7oz3SpoNtDcrPD
+J57X9uIGygmbWs3xCFlP8BAiq47Xu7e28kXols3V8LJfz9ySoC8dS0bOV72wehDjfCubm8oCD38Q
+c/VvL3b8/kGrXqSFKU4TBoKSwXFk8gD0VjgQoKLV9w5mBHNeWS4mUea7I47zOEZFqDW58u40PcXW
+zth5O6FfY6H5n4edY7hkjF7UVTZlAVRihLGccfc3UNHtzLU4iU1pAmI6Lq9WETM5/gB7UTHpXpdf
+Dy42TRffPzGOPBX6lE7iSbkUeald6MnCEBFpoW5d9GYXtwl3pEtJ1YwzlA0qliDdNPgQijGjvwBC
+m0T5RQmQ3O6/rNf2U3ATrfJD6sT5ZfPF5KIldziSkVpwOmiaEGXxsmD61nMpLpD4WwGR0ElzBUPq
+N9dBxPanZ65ZX/HBmEnzb8+EWB0v1LymMaTCRwQ4Mky8MQDDE6K0/xnAFIToJIFg9oqrlldf+Wge
+DnDDXxTW+Gba/PUFhdAdbf0xUyAq/9kxB1o0hwP2esh7KLHEQUr8FNMB2oElygUlokvHJCFlkRYG
+Xaa3qXmOrjrVisERA7hwdCjO6Qz2mCa81yfqXANSRaaCLlaXNEhAoXn1pyzbF5HYJe07ku1gLW9/
+tQw0mj+nW1Sj+kaU45zP1iPbJMxMN394pLfFYNNDhQVTkzzN6Tm5aOBWZDjeW5sUFTNeHEngHsSc
+nDfQRoZ4UX3EiHh8w/c/V88QsTYdzp/xSReirl3uFDTbnu8u//gaf2x5C5cv42a0hUL+KgJ/vg==
+`pragma protect end_protected
