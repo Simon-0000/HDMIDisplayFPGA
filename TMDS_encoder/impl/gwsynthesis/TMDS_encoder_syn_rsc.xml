@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="TMDS_encoder"/>
+<Module name="TMDS_encoder" Register="18" Lut="32" T_Register="18(18)" T_Lut="32(32)"/>
