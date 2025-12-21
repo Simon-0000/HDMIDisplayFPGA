@@ -1,10 +1,10 @@
 [
  {
   "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
-  "InstLine" : 4,
+  "InstLine" : 7,
   "InstName" : "TMDS_encoder",
   "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
-  "ModuleLine" : 4,
+  "ModuleLine" : 7,
   "ModuleName" : "TMDS_encoder"
  }
 ]

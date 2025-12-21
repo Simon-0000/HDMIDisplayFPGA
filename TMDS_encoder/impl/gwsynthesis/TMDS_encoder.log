@@ -1,13 +1,12 @@
 GowinSynthesis start
 Running parser ...
 Analyzing VHDL file 'C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd'
-Analyzing entity 'tmds_encoder'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":4)
-Analyzing architecture 'tmds_encoder_arch'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":26)
-Processing 'TMDS_encoder(TMDS_encoder_arch)'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":4)
-'others' clause is never selected("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":108)
+Analyzing entity 'tmds_encoder'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":7)
+Analyzing architecture 'tmds_encoder_arch'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":18)
+Processing 'TMDS_encoder(TMDS_encoder_arch)'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":7)
+'others' clause is never selected("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":102)
 NOTE  (EX0101) : Current top module is "TMDS_encoder"
 [5%] Running netlist conversion ...
-WARN  (CV0016) : Input C1_C0 is unused("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":20)
 Running device independent optimization ...
 [10%] Optimizing Phase 0 completed
 [15%] Optimizing Phase 1 completed
