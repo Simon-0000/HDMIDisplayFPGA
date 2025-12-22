@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="TMDS_encoder" Register="16" Alu="49" Lut="85" T_Register="16(16)" T_Alu="49(49)" T_Lut="85(85)"/>
+<Module name="top"/>

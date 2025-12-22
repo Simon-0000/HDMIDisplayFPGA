@@ -7,12 +7,10 @@ Running placement......
 [10%] Placement Phase 0 completed
 [20%] Placement Phase 1 completed
 [30%] Placement Phase 2 completed
-WARN  (TA1132) :  'clk' was determined to be a clock but was not created.
 [50%] Placement Phase 3 completed
 Running routing......
 [60%] Routing Phase 0 completed
 [70%] Routing Phase 1 completed
-[80%] Routing Phase 2 completed
 [90%] Routing Phase 3 completed
 Running timing analysis......
 [95%] Timing analysis completed
@@ -26,5 +24,5 @@ Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encod
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.rpt.html" completed
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.rpt.txt" completed
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.tr.html" completed
-Sun Dec 21 18:58:58 2025
+Sun Dec 21 20:26:54 2025
 

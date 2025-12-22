@@ -7,6 +7,7 @@
     <FileList>
         <File path="src/TMDS_encoder.vhd" type="file.vhdl" enable="1"/>
         <File path="src/gowin_pllvr/gowin_pllvr.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/top.vhd" type="file.vhdl" enable="1"/>
         <File path="src/constraints.cst" type="file.cst" enable="1"/>
     </FileList>
 </Project>

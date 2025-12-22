@@ -10,6 +10,11 @@
    "Library" : "work",
    "Path" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/gowin_pllvr.vhd",
    "Type" : "vhdl"
+  },
+  {
+   "Library" : "work",
+   "Path" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/top.vhd",
+   "Type" : "vhdl"
   }
  ],
  "IncludePath" : [

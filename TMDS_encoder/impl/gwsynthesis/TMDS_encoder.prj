@@ -5,6 +5,8 @@
     <Device id="GW1NSR-4C" package="QFN48P" speed="6" partNumber="GW1NSR-LV4CQN48PC6/I5"/>
     <FileList>
         <File path="C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd" type="vhdl"/>
+        <File path="C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\gowin_pllvr\gowin_pllvr.vhd" type="vhdl"/>
+        <File path="C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd" type="vhdl"/>
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>
