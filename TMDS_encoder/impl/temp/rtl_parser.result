@@ -6,5 +6,13 @@
   "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
   "ModuleLine" : 7,
   "ModuleName" : "TMDS_encoder"
+ },
+ {
+  "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/gowin_pllvr.vhd",
+  "InstLine" : 12,
+  "InstName" : "Gowin_PLLVR",
+  "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/gowin_pllvr.vhd",
+  "ModuleLine" : 12,
+  "ModuleName" : "Gowin_PLLVR"
  }
 ]

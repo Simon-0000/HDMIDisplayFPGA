@@ -1,0 +1,35 @@
+-series GW1NSR
+-device GW1NSR-4C
+-device_version 
+-package QFN48P
+-part_number GW1NSR-LV4CQN48PC6/I5
+
+
+-mod_name Gowin_PLLVR
+-file_name gowin_pllvr
+-path C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/
+-type PLL
+-pllvr true
+-file_type vhdl
+-dev_type GW1NSR-4C
+-dyn_idiv_sel false
+-idiv_sel 8
+-dyn_fbdiv_sel false
+-fbdiv_sel 63
+-dyn_odiv_sel false
+-odiv_sel 4
+-dyn_sdiv_sel 10
+-dyn_da_en false
+-rst_sig true
+-rst_sig_p false
+-pll_reg true
+-fclkin 32
+-clkfb_sel 0
+-en_lock false
+-clkout_bypass false
+-en_clkoutp false
+-clkoutp_bypass false
+-en_clkoutd true
+-clkoutd_bypass false
+-clkoutd_src CLKOUT
+-en_clkoutd3 false
