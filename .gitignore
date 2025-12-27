@@ -1,0 +1,11 @@
+# Gowin EDA Generated Folders
+impl/
+temp/
+
+# Generated Bitstreams and Binaries
+*.fs
+*.bin
+
+# Temporary or Backup files
+*.bak
+*.log
