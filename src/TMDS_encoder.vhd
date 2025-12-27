@@ -7,7 +7,7 @@ use ieee.numeric_std.all;
 entity TMDS_encoder is 
   port(
     clk : in std_logic;
-    rst : in std_logic;
+    reset : in std_logic;
     D : in std_logic_vector(7 downto 0);
     C1_C0 : in std_logic_vector(1 downto 0);
     DE : in std_logic;
@@ -37,7 +37,7 @@ begin
 
   begin
     if rising_edge(clk) then
-      if rst = '1' then 
+      if reset = '1' then 
         Cnt <= 0;
         q_out <= (others => '0');
       else

@@ -5,6 +5,7 @@
     <Version>5</Version>
     <Device name="GW1NSR-4C" pn="GW1NSR-LV4CQN48PC6/I5">gw1nsr4c-000</Device>
     <FileList>
+        <File path="src/Serializer.vhd" type="file.vhdl" enable="1"/>
         <File path="src/TMDS_encoder.vhd" type="file.vhdl" enable="1"/>
         <File path="src/gowin_pllvr/gowin_pllvr.vhd" type="file.vhdl" enable="1"/>
         <File path="src/top.vhd" type="file.vhdl" enable="1"/>
