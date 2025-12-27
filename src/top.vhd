@@ -9,10 +9,10 @@ entity top is
     H_SYNC : positive := 96;
     H_BACK_PORCH : positive := 48;
 
-    V_ACTIVE : positive := 640;
-    V_FRONT_PORCH : positive := 16;
-    V_SYNC : positive := 96;
-    V_BACK_PORCH : positive := 48
+    V_ACTIVE      : positive := 480;
+    V_FRONT_PORCH : positive := 10;
+    V_SYNC        : positive := 2;
+    V_BACK_PORCH  : positive := 33
   );
   port(
     clk: in std_logic; -- 32Mhz
