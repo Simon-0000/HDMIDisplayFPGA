@@ -8,20 +8,20 @@ Analyzing entity 'gowin_pllvr'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDispl
 Analyzing architecture 'behavioral'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\gowin_pllvr\gowin_pllvr.vhd":22)
 Analyzing VHDL file 'C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd'
 Analyzing entity 'top'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":5)
-Analyzing architecture 'top_arch'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":16)
+Analyzing architecture 'top_arch'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":27)
 Processing 'top(top_arch)'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":5)
-WARN  (EX4206) : Using initial value for 'red_d' since it is never assigned("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":41)
+WARN  (EX4206) : Using initial value for 'red_d' since it is never assigned("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":52)
+WARN  (EX4206) : Using initial value for 'green_d' since it is never assigned("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":53)
+WARN  (EX4206) : Using initial value for 'blue_d' since it is never assigned("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":54)
+WARN  (EX4206) : Using initial value for 'c0_c1' since it is never assigned("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":60)
 Processing 'Gowin_PLLVR(Behavioral)'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\gowin_pllvr\gowin_pllvr.vhd":12)
 Processing 'TMDS_encoder(TMDS_encoder_arch)'("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":7)
 'others' clause is never selected("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\TMDS_encoder.vhd":102)
 NOTE  (EX0101) : Current top module is "top"
-WARN  (EX0211) : The output port "bit_clk" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":9)
-WARN  (EX0211) : The output port "r" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":10)
-WARN  (EX0211) : The output port "g" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":11)
-WARN  (EX0211) : The output port "b" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":12)
+WARN  (EX0211) : The output port "r" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":21)
+WARN  (EX0211) : The output port "g" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":22)
+WARN  (EX0211) : The output port "b" of module "top" has no driver, assigning undriven bits to Z, simulation mismatch possible("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":23)
 [5%] Running netlist conversion ...
-WARN  (CV0016) : Input clk is unused("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":7)
-WARN  (CV0016) : Input rst is unused("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":8)
 Running device independent optimization ...
 [10%] Optimizing Phase 0 completed
 [15%] Optimizing Phase 1 completed
@@ -37,8 +37,9 @@ Running technical mapping ...
 [75%] Tech-Mapping Phase 2 completed
 [80%] Tech-Mapping Phase 3 completed
 [90%] Tech-Mapping Phase 4 completed
-WARN  (NL0002) : The module "Gowin_PLLVR" instantiated to "pll" is swept in optimizing("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":45)
-WARN  (NL0002) : The module "TMDS_encoder" instantiated to "r_TMDS" is swept in optimizing("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":53)
+WARN  (NL0002) : The module "TMDS_encoder" instantiated to "blue_TMDS" is swept in optimizing("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":93)
+WARN  (NL0002) : The module "TMDS_encoder" instantiated to "green_TMDS" is swept in optimizing("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":84)
+WARN  (NL0002) : The module "TMDS_encoder" instantiated to "red_TMDS" is swept in optimizing("C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\src\top.vhd":75)
 [95%] Generate netlist file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\gwsynthesis\TMDS_encoder.vg" completed
 [100%] Generate report file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\gwsynthesis\TMDS_encoder_syn.rpt.html" completed
 GowinSynthesis finish

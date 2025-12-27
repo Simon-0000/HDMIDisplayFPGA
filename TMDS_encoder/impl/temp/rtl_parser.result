@@ -9,7 +9,7 @@
   "SubInsts" : [
    {
     "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/top.vhd",
-    "InstLine" : 45,
+    "InstLine" : 67,
     "InstName" : "pll",
     "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/gowin_pllvr.vhd",
     "ModuleLine" : 12,
@@ -17,8 +17,24 @@
    },
    {
     "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/top.vhd",
-    "InstLine" : 53,
-    "InstName" : "r_TMDS",
+    "InstLine" : 75,
+    "InstName" : "red_TMDS",
+    "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
+    "ModuleLine" : 7,
+    "ModuleName" : "TMDS_encoder"
+   },
+   {
+    "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/top.vhd",
+    "InstLine" : 84,
+    "InstName" : "green_TMDS",
+    "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
+    "ModuleLine" : 7,
+    "ModuleName" : "TMDS_encoder"
+   },
+   {
+    "InstFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/top.vhd",
+    "InstLine" : 93,
+    "InstName" : "blue_TMDS",
     "ModuleFile" : "C:/Users/asmar/Documents/PROJETS/GOWIN/HDMIDisplayFPGA/TMDS_encoder/src/TMDS_encoder.vhd",
     "ModuleLine" : 7,
     "ModuleName" : "TMDS_encoder"

@@ -11,6 +11,7 @@ Running placement......
 Running routing......
 [60%] Routing Phase 0 completed
 [70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
 [90%] Routing Phase 3 completed
 Running timing analysis......
 [95%] Timing analysis completed
@@ -24,5 +25,5 @@ Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encod
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.rpt.html" completed
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.rpt.txt" completed
 Generate file "C:\Users\asmar\Documents\PROJETS\GOWIN\HDMIDisplayFPGA\TMDS_encoder\impl\pnr\TMDS_encoder.tr.html" completed
-Sun Dec 21 20:26:54 2025
+Tue Dec 23 18:08:55 2025
 
