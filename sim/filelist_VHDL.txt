@@ -1,0 +1,3 @@
+../src/Serializer.vhd
+../src/TMDS_encoder.vhd
+../src/top.vhd
