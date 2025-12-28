@@ -95,11 +95,11 @@ begin
           --Blanking period
           Cnt <= 0;
           case C1_C0 is 
-            when "00" => q_out <= "0010101011";
-            when "01" => q_out <= "1101010100";
-            when "10" => q_out <= "0010101010";
-            when "11" => q_out <= "1101010101";
-            when others => q_out <= "1101010101";
+            when "00" => q_out <= "1101010100";
+            when "01" => q_out <= "0010101011";
+            when "10" => q_out <= "0101010100";
+            when "11" => q_out <= "1010101011";
+            when others => q_out <= "1101010100";
           end case;
         end if;
       end if;

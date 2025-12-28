@@ -83,8 +83,8 @@
 
   attribute syn_preserve of clk_pixel_buffered : signal is true;
 
-  signal red_D : std_logic_vector(7 downto 0) := "00000000";
-  signal green_D : std_logic_vector(7 downto 0) := "00000000";
+  signal red_D : std_logic_vector(7 downto 0) := "11111111";
+  signal green_D : std_logic_vector(7 downto 0) := "11111111";
   signal blue_D : std_logic_vector(7 downto 0) := "11111111";
 
   signal red_q_out : std_logic_vector(9 downto 0);
@@ -178,19 +178,39 @@
     process(clk_pixel_buffered)
       variable pos_x_tmp : natural range 0 to 799 := 0;
       variable pos_y_tmp : natural range 0 to 524 := 0;
+      variable counter : natural range 0 to 767 := 0;
+
       begin
       if rising_edge(clk_pixel_buffered) then
+          if counter > 511 then
+            green_D <= std_logic_vector(to_unsigned(767 - counter,8));
+            blue_D <= std_logic_vector(to_unsigned(counter - 512,8));
+            red_D <= "00000000";
+          elsif counter > 255 then
+            red_D <= std_logic_vector(to_unsigned(511 - counter,8));
+            green_D <= std_logic_vector(to_unsigned(counter - 256,8));
+            blue_D <= "00000000";
+          else 
+            blue_D <= std_logic_vector(to_unsigned(255 - counter,8));
+            red_D <= std_logic_vector(to_unsigned(counter,8));
+            green_D <= "00000000";
+          end if;
           if pos_x_tmp = H_FRONT_PORCH + H_ACTIVE + H_SYNC + H_BACK_PORCH - 1 then
             pos_x_tmp := 0;
             if pos_y_tmp = V_FRONT_PORCH + V_ACTIVE + V_SYNC + V_BACK_PORCH - 1 then
               pos_y_tmp := 0;
+              if counter = 767 then
+                counter := 0;
+              else  
+                counter := counter + 1;
+              end if;
             else
               pos_y_tmp := pos_y_tmp + 1;
             end if;
           else
             pos_x_tmp := pos_x_tmp + 1;
           end if;
-
+          
           pos_x <= pos_x_tmp;
           pos_y <= pos_y_tmp;
       end if;    
