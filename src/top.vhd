@@ -66,7 +66,28 @@
       data_out : out std_logic
     );
   end component;
-
+  component VideoTimingGenerator is
+    generic(
+      H_BITS : positive := 10;
+      V_BITS : positive := 10;
+      H_ACTIVE : positive := 640;
+      H_FRONT_PORCH : positive := 16;
+      H_SYNC : positive := 96;
+      H_BACK_PORCH : positive := 48;
+      V_ACTIVE : positive := 480;
+      V_FRONT_PORCH : positive := 10;
+      V_SYNC : positive := 2;
+      V_BACK_PORCH : positive := 33
+    );
+    port(
+      clk: in std_logic;
+      reset: in std_logic;
+      pos_x: out unsigned(H_BITS - 1 downto 0);
+      pos_y: out unsigned(V_BITS - 1 downto 0);
+      DE : out std_logic;
+      C1_C0 : out std_logic_vector(1 downto 0)
+    );
+  end component;
   signal reset : std_logic;
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
@@ -75,13 +96,11 @@
   signal clk_pixel_buffered : std_logic;
 
   attribute syn_keep : boolean;
-  attribute syn_preserve : boolean;
 
   attribute syn_keep of clk_pixel_buffered : signal is true;
   attribute syn_keep of clk_pixel_temp : signal is true;
 
 
-  attribute syn_preserve of clk_pixel_buffered : signal is true;
 
   signal red_D : std_logic_vector(7 downto 0) := "11111111";
   signal green_D : std_logic_vector(7 downto 0) := "11111111";
@@ -91,12 +110,11 @@
   signal green_q_out : std_logic_vector(9 downto 0);
   signal blue_q_out : std_logic_vector(9 downto 0);
 
-  signal C0_C1 : std_logic_vector(1 downto 0);
+  signal C1_C0  : std_logic_vector(1 downto 0);
   signal DE : std_logic;
 
-  signal pos_x : natural range 0 to 799 := 0;
-  signal pos_y : natural range 0 to 524 := 0;
-  signal serial_out : std_logic_vector(2 downto 0);
+  signal pos_x : unsigned(9 downto 0) := to_unsigned(0,10);
+  signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
 
   begin
     reset <= not(rst);
@@ -143,7 +161,7 @@
       clk => clk_pixel_buffered,
       reset => reset,
       D => blue_D,
-      C1_C0 => C0_C1,
+      C1_C0 => C1_C0,
       DE => DE,
       q_out => blue_q_out
     );
@@ -175,56 +193,15 @@
     );
 
     clk_pixel <= clk_pixel_buffered;
-    process(clk_pixel_buffered)
-      variable pos_x_tmp : natural range 0 to 799 := 0;
-      variable pos_y_tmp : natural range 0 to 524 := 0;
-      variable counter : natural range 0 to 767 := 0;
 
-      begin
-      if rising_edge(clk_pixel_buffered) then
-          if counter > 511 then
-            green_D <= std_logic_vector(to_unsigned(767 - counter,8));
-            blue_D <= std_logic_vector(to_unsigned(counter - 512,8));
-            red_D <= "00000000";
-          elsif counter > 255 then
-            red_D <= std_logic_vector(to_unsigned(511 - counter,8));
-            green_D <= std_logic_vector(to_unsigned(counter - 256,8));
-            blue_D <= "00000000";
-          else 
-            blue_D <= std_logic_vector(to_unsigned(255 - counter,8));
-            red_D <= std_logic_vector(to_unsigned(counter,8));
-            green_D <= "00000000";
-          end if;
-          if pos_x_tmp = H_FRONT_PORCH + H_ACTIVE + H_SYNC + H_BACK_PORCH - 1 then
-            pos_x_tmp := 0;
-            if pos_y_tmp = V_FRONT_PORCH + V_ACTIVE + V_SYNC + V_BACK_PORCH - 1 then
-              pos_y_tmp := 0;
-              if counter = 767 then
-                counter := 0;
-              else  
-                counter := counter + 1;
-              end if;
-            else
-              pos_y_tmp := pos_y_tmp + 1;
-            end if;
-          else
-            pos_x_tmp := pos_x_tmp + 1;
-          end if;
-          
-          pos_x <= pos_x_tmp;
-          pos_y <= pos_y_tmp;
-      end if;    
-    end process;
-
-    DE <= '1' when pos_x < H_ACTIVE AND pos_y < V_ACTIVE else '0';
-    
-    C0_C1(0) <= '0' when (pos_x >= H_ACTIVE + H_FRONT_PORCH) and 
-                         (pos_x < H_ACTIVE + H_FRONT_PORCH + H_SYNC) 
-                    else '1';
-
-    C0_C1(1) <= '0' when (pos_y >= V_ACTIVE + V_FRONT_PORCH) and 
-                         (pos_y < V_ACTIVE + V_FRONT_PORCH + V_SYNC) 
-                    else '1';
+    videoTiming : VideoTimingGenerator port map(
+      clk => clk_pixel_buffered,
+      reset => reset,
+      pos_x => pos_x,
+      pos_y => pos_y,
+      DE => DE,
+      C1_C0 => C1_C0
+    );
     
   end top_arch;
 
