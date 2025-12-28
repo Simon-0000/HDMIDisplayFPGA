@@ -4,7 +4,7 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Sun Dec 21 19:43:26 2025
+--Created Time: Sat Dec 27 19:25:55 2025
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -12,10 +12,8 @@ use IEEE.std_logic_1164.all;
 entity Gowin_PLLVR is
     port (
         clkout: out std_logic;
-        clkoutd: out std_logic;
         reset: in std_logic;
-        clkin: in std_logic;
-        vren: in std_logic
+        clkin: in std_logic
     );
 end Gowin_PLLVR;
 
@@ -23,7 +21,9 @@ architecture Behavioral of Gowin_PLLVR is
 
     signal lock_o: std_logic;
     signal clkoutp_o: std_logic;
+    signal clkoutd_o: std_logic;
     signal clkoutd3_o: std_logic;
+    signal gw_vcc: std_logic;
     signal gw_gnd: std_logic;
     signal FBDSEL_i: std_logic_vector(5 downto 0);
     signal IDSEL_i: std_logic_vector(5 downto 0);
@@ -79,6 +79,7 @@ architecture Behavioral of Gowin_PLLVR is
     end component;
 
 begin
+    gw_vcc <= '1';
     gw_gnd <= '0';
 
     FBDSEL_i <= gw_gnd & gw_gnd & gw_gnd & gw_gnd & gw_gnd & gw_gnd;
@@ -90,16 +91,16 @@ begin
 
     pllvr_inst: PLLVR
         generic map (
-            FCLKIN => "32",
+            FCLKIN => "27",
             DEVICE => "GW1NSR-4C",
             DYN_IDIV_SEL => "false",
-            IDIV_SEL => 7,
+            IDIV_SEL => 2,
             DYN_FBDIV_SEL => "false",
-            FBDIV_SEL => 62,
+            FBDIV_SEL => 13,
             DYN_ODIV_SEL => "false",
-            ODIV_SEL => 4,
+            ODIV_SEL => 8,
             PSDA_SEL => "0000",
-            DYN_DA_EN => "false",
+            DYN_DA_EN => "true",
             DUTYDA_SEL => "1000",
             CLKOUT_FT_DIR => '1',
             CLKOUTP_FT_DIR => '1',
@@ -109,7 +110,7 @@ begin
             CLKOUT_BYPASS => "false",
             CLKOUTP_BYPASS => "false",
             CLKOUTD_BYPASS => "false",
-            DYN_SDIV_SEL => 10,
+            DYN_SDIV_SEL => 2,
             CLKOUTD_SRC => "CLKOUT",
             CLKOUTD3_SRC => "CLKOUT"
         )
@@ -117,7 +118,7 @@ begin
             CLKOUT => clkout,
             LOCK => lock_o,
             CLKOUTP => clkoutp_o,
-            CLKOUTD => clkoutd,
+            CLKOUTD => clkoutd_o,
             CLKOUTD3 => clkoutd3_o,
             RESET => reset,
             RESET_P => gw_gnd,
@@ -129,7 +130,7 @@ begin
             PSDA => PSDA_i,
             DUTYDA => DUTYDA_i,
             FDLY => FDLY_i,
-            VREN => vren
+            VREN => gw_vcc
         );
 
 end Behavioral; --Gowin_PLLVR
