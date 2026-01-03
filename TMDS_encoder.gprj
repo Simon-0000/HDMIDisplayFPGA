@@ -7,8 +7,8 @@
     <FileList>
         <File path="src/Serializer.vhd" type="file.vhdl" enable="1"/>
         <File path="src/TMDS_encoder.vhd" type="file.vhdl" enable="1"/>
-        <File path="src/gowin_clkdiv/gowin_clkdiv.vhd" type="file.vhdl" enable="1"/>
-        <File path="src/gowin_pllvr/gowin_pllvr.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/gowin_clkdiv/clkdiv_pixel_bit.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/gowin_pllvr/pllvr_ddr_pixel.vhd" type="file.vhdl" enable="1"/>
         <File path="src/top.vhd" type="file.vhdl" enable="1"/>
         <File path="src/video_timing_generator.vhd" type="file.vhdl" enable="1"/>
         <File path="src/constraints.cst" type="file.cst" enable="1"/>

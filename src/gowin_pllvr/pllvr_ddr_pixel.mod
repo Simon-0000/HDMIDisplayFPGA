@@ -5,8 +5,8 @@
 -part_number GW1NSR-LV4CQN48PC6/I5
 
 
--mod_name Gowin_PLLVR
--file_name gowin_pllvr
+-mod_name Pllvr_DDR_Pixel
+-file_name pllvr_ddr_pixel
 -path C:/Users/Simon Asmar/Documents/PROGRAMMING/Gowin/HDMIDisplayFPGA/TMDS_encoder/src/gowin_pllvr/
 -type PLL
 -pllvr true

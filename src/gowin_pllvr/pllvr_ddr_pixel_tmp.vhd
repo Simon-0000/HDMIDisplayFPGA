@@ -4,24 +4,24 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Sat Dec 27 19:27:01 2025
+--Created Time: Fri Jan  2 21:29:09 2026
 
 --Change the instance name and port connections to the signal names
 ----------Copy here to design--------
 
-component Gowin_CLKDIV
+component Pllvr_DDR_Pixel
     port (
         clkout: out std_logic;
-        hclkin: in std_logic;
-        resetn: in std_logic
+        reset: in std_logic;
+        clkin: in std_logic
     );
 end component;
 
-your_instance_name: Gowin_CLKDIV
+your_instance_name: Pllvr_DDR_Pixel
     port map (
         clkout => clkout,
-        hclkin => hclkin,
-        resetn => resetn
+        reset => reset,
+        clkin => clkin
     );
 
 ----------Copy end-------------------

@@ -16,7 +16,7 @@
     );
     port(
       clk: in std_logic;
-      rst: in std_logic;
+      resetn: in std_logic;
       clk_pixel: out std_logic;
       r: out std_logic;
       g: out std_logic;
@@ -26,20 +26,21 @@
 
   architecture top_arch of top is
 
-  component Gowin_PLLVR is
+  component Pllvr_DDR_Pixel
       port (
           clkout: out std_logic;
           reset: in std_logic;
           clkin: in std_logic
       );
   end component;
-  component Gowin_CLKDIV is
-      port (
-          clkout: out std_logic;
-          hclkin: in std_logic;
-          resetn: in std_logic
-      );
-  end component;
+
+component Clkdiv_Pixel_Bit
+    port (
+        clkout: out std_logic;
+        hclkin: in std_logic;
+        resetn: in std_logic
+    );
+end component;
   component BUFG
    port(
      O:out std_logic;
@@ -117,16 +118,16 @@
   signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
 
   begin
-    reset <= not(rst);
-    pll : Gowin_PLLVR port map(
-      clkout => clk_bit_temp,
-      reset => reset,
-      clkin => clk
+    reset <= not(resetn);
+    pll_pixel_ddr: Pllvr_DDR_Pixel port map (
+        clkout => clk_bit_temp,
+        reset => reset,
+        clkin => clk
     );
-    clkDiv : Gowin_CLKDIV port map(
+    clkDivPixelBit: Clkdiv_Pixel_Bit port map (
         clkout => clk_pixel_temp,
-        hclkin => clk_bit_temp,
-        resetn => rst
+        hclkin => clk_bit_buffered,
+        resetn => resetn
     );
     bufg_clk_bit:BUFG
       port map(

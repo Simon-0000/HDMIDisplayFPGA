@@ -4,20 +4,20 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Sat Dec 27 19:25:55 2025
+--Created Time: Fri Jan  2 21:29:09 2026
 
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity Gowin_PLLVR is
+entity Pllvr_DDR_Pixel is
     port (
         clkout: out std_logic;
         reset: in std_logic;
         clkin: in std_logic
     );
-end Gowin_PLLVR;
+end Pllvr_DDR_Pixel;
 
-architecture Behavioral of Gowin_PLLVR is
+architecture Behavioral of Pllvr_DDR_Pixel is
 
     signal lock_o: std_logic;
     signal clkoutp_o: std_logic;
@@ -133,4 +133,4 @@ begin
             VREN => gw_vcc
         );
 
-end Behavioral; --Gowin_PLLVR
+end Behavioral; --Pllvr_DDR_Pixel
