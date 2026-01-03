@@ -27,20 +27,76 @@
   architecture top_arch of top is
 
   component Pllvr_DDR_Pixel
-      port (
-          clkout: out std_logic;
-          reset: in std_logic;
-          clkin: in std_logic
-      );
-  end component;
-
-component Clkdiv_Pixel_Bit
     port (
-        clkout: out std_logic;
-        hclkin: in std_logic;
-        resetn: in std_logic
+      clkout: out std_logic;
+      reset: in std_logic;
+      clkin: in std_logic
     );
-end component;
+  end component;
+  component Pllvr_Hyperram
+    port (
+      clkout: out std_logic;
+      lock: out std_logic;
+      reset: in std_logic;
+      clkin: in std_logic
+    );
+  end component;
+  component Clkdiv_Pixel_Bit
+    port (
+      clkout: out std_logic;
+      hclkin: in std_logic;
+      resetn: in std_logic
+    );
+  end component;
+  component HyperRAM_Memory_Interface_Top
+    port (
+      clk: in std_logic;
+      memory_clk: in std_logic;
+      pll_lock: in std_logic;
+      rst_n: in std_logic;
+      O_hpram_ck: out std_logic_vector(0 downto 0);
+      IO_hpram_dq: inout std_logic_vector(7 downto 0);
+      IO_hpram_rwds: inout std_logic_vector(0 downto 0);
+      O_hpram_cs_n: out std_logic_vector(0 downto 0);
+      O_hpram_reset_n: out std_logic_vector(0 downto 0);
+      wr_data: in std_logic_vector(31 downto 0);
+      rd_data: out std_logic_vector(31 downto 0);
+      rd_data_valid: out std_logic;
+      addr: in std_logic_vector(21 downto 0);
+      cmd: in std_logic;
+      cmd_en: in std_logic;
+      init_calib: out std_logic;
+      clk_out: out std_logic;
+      data_mask: in std_logic_vector(3 downto 0)
+    );
+  end component;
+  component Video_Frame_Buffer_Top
+    port (
+      I_rst_n: in std_logic;
+      I_dma_clk: in std_logic;
+      I_wr_halt: in std_logic_vector(0 downto 0);
+      I_rd_halt: in std_logic_vector(0 downto 0);
+      I_vin0_clk: in std_logic;
+      I_vin0_vs_n: in std_logic;
+      I_vin0_de: in std_logic;
+      I_vin0_data: in std_logic_vector(15 downto 0);
+      O_vin0_fifo_full: out std_logic;
+      I_vout0_clk: in std_logic;
+      I_vout0_vs_n: in std_logic;
+      I_vout0_de: in std_logic;
+      O_vout0_den: out std_logic;
+      O_vout0_data: out std_logic_vector(15 downto 0);
+      O_vout0_fifo_empty: out std_logic;
+      O_cmd: out std_logic;
+      O_cmd_en: out std_logic;
+      O_addr: out std_logic_vector(21 downto 0);
+      O_wr_data: out std_logic_vector(31 downto 0);
+      O_data_mask: out std_logic_vector(3 downto 0);
+      I_rd_data_valid: in std_logic;
+      I_rd_data: in std_logic_vector(31 downto 0);
+      I_init_calib: in std_logic
+    );
+  end component;
   component BUFG
    port(
      O:out std_logic;
@@ -90,11 +146,18 @@ end component;
     );
   end component;
   signal reset : std_logic;
+  signal pllvr_hyperram_lock : std_logic;
+
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
 
   signal clk_pixel_temp : std_logic;
   signal clk_pixel_buffered : std_logic;
+
+  signal clk_hyperram_temp : std_logic;
+  signal clk_hyperram_buffered : std_logic;
+
+  signal hyperram_clk_out : std_logic;
 
   attribute syn_keep : boolean;
 
@@ -118,12 +181,23 @@ end component;
   signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
 
   begin
-    reset <= not(resetn);
+
+
+    --CLOCKS
     pll_pixel_ddr: Pllvr_DDR_Pixel port map (
         clkout => clk_bit_temp,
         reset => reset,
         clkin => clk
     );
+
+    pll_hyperram: Pllvr_Hyperram
+    port map (
+        clkout => clk_hyperram_temp,
+        lock => pllvr_hyperram_lock,
+        reset => reset,
+        clkin => clk
+    );
+
     clkDivPixelBit: Clkdiv_Pixel_Bit port map (
         clkout => clk_pixel_temp,
         hclkin => clk_bit_buffered,
@@ -139,7 +213,61 @@ end component;
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
+    bufg_clk_hyperram:BUFG
+      port map(
+      O=>clk_hyperram_buffered,
+      I=>clk_hyperram_temp
+     );
 
+    --HYPERRAM
+    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
+      clk => clk,
+      memory_clk => clk_hyperram_buffered,
+      pll_lock => pllvr_hyperram_lock,
+      rst_n => resetn,
+      O_hpram_ck => O_hpram_ck,
+      IO_hpram_dq => IO_hpram_dq,
+      IO_hpram_rwds => IO_hpram_rwds,
+      O_hpram_cs_n => O_hpram_cs_n,
+      O_hpram_reset_n => O_hpram_reset_n,
+      wr_data => wr_data,
+      rd_data => rd_data,
+      rd_data_valid => rd_data_valid,
+      addr => addr,
+      cmd => cmd,
+      cmd_en => cmd_en,
+      init_calib => init_calib,
+      clk_out => hyperram_clk_out,
+      data_mask => data_mask
+    );
+    --Framebuffer
+    videoFramebuffer: Video_Frame_Buffer_Top port map (
+      I_rst_n => resetn,
+      I_dma_clk => hyperram_clk_out,
+      I_wr_halt => not(init_calib),
+      I_rd_halt => not(init_calib),
+      I_vin0_clk => I_vin0_clk,
+      I_vin0_vs_n => I_vin0_vs_n,
+      I_vin0_de => I_vin0_de,
+      I_vin0_data => I_vin0_data,
+      O_vin0_fifo_full => O_vin0_fifo_full,
+      I_vout0_clk => clk_pixel_buffered,
+      I_vout0_vs_n => I_vout0_vs_n,
+      I_vout0_de => DE,
+      O_vout0_den => O_vout0_den,
+      O_vout0_data => O_vout0_data,
+      O_vout0_fifo_empty => open,
+      O_cmd => cmd,
+      O_cmd_en => cmd_en,
+      O_addr => addr,
+      O_wr_data => wr_data,
+      O_data_mask => data_mask,
+      I_rd_data_valid => rd_data_valid,
+      I_rd_data => rd_data,
+      I_init_calib => init_calib
+    );
+
+    --TMDS encoders
     red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,
       reset => reset,
@@ -166,6 +294,8 @@ end component;
       DE => DE,
       q_out => blue_q_out
     );
+
+    --Serializers
     ser_red : Serializer
     port map (
       data_in => red_q_out,
@@ -174,7 +304,6 @@ end component;
       reset => reset,
       data_out => r
     );
-
     ser_green : Serializer
     port map (
       data_in => green_q_out,
@@ -183,7 +312,6 @@ end component;
       reset => reset,
       data_out => g
     );
-
     ser_blue : Serializer
     port map (
       data_in => blue_q_out,
@@ -193,6 +321,7 @@ end component;
       data_out => b
     );
 
+    reset <= not(resetn);
     clk_pixel <= clk_pixel_buffered;
 
     videoTiming : VideoTimingGenerator port map(
