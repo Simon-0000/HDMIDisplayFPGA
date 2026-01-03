@@ -20,7 +20,13 @@
       clk_pixel: out std_logic;
       r: out std_logic;
       g: out std_logic;
-      b: out std_logic
+      b: out std_logic;
+
+      O_hpram_ck      : out std_logic_vector(0 downto 0);
+      IO_hpram_dq     : inout std_logic_vector(7 downto 0);
+      IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
+      O_hpram_cs_n    : out std_logic_vector(0 downto 0);
+      O_hpram_reset_n : out std_logic_vector(0 downto 0)
     );
   end top;
 
@@ -145,38 +151,54 @@
       C1_C0 : out std_logic_vector(1 downto 0)
     );
   end component;
+  component RGB565_Pattern_Generator is
+    generic(
+      H_BITS : positive := 10;
+      V_BITS : positive := 10
+    );
+    port(
+      clk : in std_logic;
+      reset : in std_logic;
+      pos_x : in unsigned(H_BITS - 1 downto 0);
+      pos_y : in unsigned(V_BITS - 1 downto 0);
+      data_out: out std_logic_vector(15 downto 0)
+    );
+  end component;
+
   signal reset : std_logic;
   signal pllvr_hyperram_lock : std_logic;
 
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
-
   signal clk_pixel_temp : std_logic;
   signal clk_pixel_buffered : std_logic;
-
   signal clk_hyperram_temp : std_logic;
   signal clk_hyperram_buffered : std_logic;
-
   signal hyperram_clk_out : std_logic;
-
   attribute syn_keep : boolean;
-
   attribute syn_keep of clk_pixel_buffered : signal is true;
   attribute syn_keep of clk_pixel_temp : signal is true;
 
-
+  signal vin_data : std_logic_vector(15 downto 0);
+  signal wr_data : std_logic_vector(31 downto 0);
+  signal rd_data : std_logic_vector(31 downto 0);
+  signal rd_data_valid : std_logic;
+  signal addr : std_logic_vector(21 downto 0);
+  signal cmd : std_logic;
+  signal cmd_en : std_logic;
+  signal init_calib : std_logic;
+  signal clk_out : std_logic;
+  signal data_mask : std_logic_vector(3 downto 0);
+  signal vout_data: std_logic_vector(15 downto 0);
 
   signal red_D : std_logic_vector(7 downto 0) := "11111111";
   signal green_D : std_logic_vector(7 downto 0) := "11111111";
   signal blue_D : std_logic_vector(7 downto 0) := "11111111";
-
   signal red_q_out : std_logic_vector(9 downto 0);
   signal green_q_out : std_logic_vector(9 downto 0);
   signal blue_q_out : std_logic_vector(9 downto 0);
-
   signal C1_C0  : std_logic_vector(1 downto 0);
   signal DE : std_logic;
-
   signal pos_x : unsigned(9 downto 0) := to_unsigned(0,10);
   signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
 
@@ -244,18 +266,18 @@
     videoFramebuffer: Video_Frame_Buffer_Top port map (
       I_rst_n => resetn,
       I_dma_clk => hyperram_clk_out,
-      I_wr_halt => not(init_calib),
-      I_rd_halt => not(init_calib),
-      I_vin0_clk => I_vin0_clk,
-      I_vin0_vs_n => I_vin0_vs_n,
-      I_vin0_de => I_vin0_de,
-      I_vin0_data => I_vin0_data,
-      O_vin0_fifo_full => O_vin0_fifo_full,
+      I_wr_halt => (others => not init_calib),
+      I_rd_halt => (others => not init_calib),
+      I_vin0_clk => clk_pixel_buffered,
+      I_vin0_vs_n  => C1_C0(1),
+      I_vin0_de => DE,
+      I_vin0_data => vin_data,
+      O_vin0_fifo_full => open,
       I_vout0_clk => clk_pixel_buffered,
-      I_vout0_vs_n => I_vout0_vs_n,
+      I_vout0_vs_n => C1_C0(1),
       I_vout0_de => DE,
-      O_vout0_den => O_vout0_den,
-      O_vout0_data => O_vout0_data,
+      O_vout0_den => open,
+      O_vout0_data => vout_data,
       O_vout0_fifo_empty => open,
       O_cmd => cmd,
       O_cmd_en => cmd_en,
@@ -266,6 +288,9 @@
       I_rd_data => rd_data,
       I_init_calib => init_calib
     );
+    red_D <= vout_data(15 downto 11) & "000";
+    green_D <= vout_data(10 downto 5) & "00";
+    blue_D <= vout_data(4 downto 0) & "000";
 
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
@@ -324,6 +349,7 @@
     reset <= not(resetn);
     clk_pixel <= clk_pixel_buffered;
 
+    --VideoTimingGenerator
     videoTiming : VideoTimingGenerator port map(
       clk => clk_pixel_buffered,
       reset => reset,
@@ -332,6 +358,14 @@
       DE => DE,
       C1_C0 => C1_C0
     );
-    
+    --Test pattern
+      testPattern : RGB565_Pattern_Generator port map(
+      clk => clk_pixel_buffered,
+      reset => reset,
+      pos_x => pos_x,
+      pos_y => pos_y,
+      data_out => vin_data
+    );
+
   end top_arch;
 

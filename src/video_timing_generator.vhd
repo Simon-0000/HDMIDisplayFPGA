@@ -53,6 +53,8 @@
             pos_x_temp <= pos_x_temp + 1;
           end if;
         end if;
+        pos_x <= pos_x_temp;
+        pos_y <= pos_y_temp;
       end if;    
     end process;
 
