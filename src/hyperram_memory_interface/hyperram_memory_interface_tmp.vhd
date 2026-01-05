@@ -4,7 +4,7 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Fri Jan  2 22:05:56 2026
+--Created Time: Sun Jan  4 18:40:29 2026
 
 --Change the instance name and port connections to the signal names
 ----------Copy here to design--------

@@ -43,6 +43,7 @@
     port (
       clkout: out std_logic;
       lock: out std_logic;
+      clkoutd: out std_logic;
       reset: in std_logic;
       clkin: in std_logic
     );
@@ -172,9 +173,10 @@
   signal clk_bit_buffered : std_logic;
   signal clk_pixel_temp : std_logic;
   signal clk_pixel_buffered : std_logic;
-  signal clk_hyperram_temp : std_logic;
-  signal clk_hyperram_buffered : std_logic;
-  signal hyperram_clk_out : std_logic;
+  signal clk_hyperram_in_temp : std_logic;
+  signal clk_hyperram_in_buffered : std_logic;
+  signal clk_hyperram_out_temp : std_logic;
+  signal clk_hyperram_out_buffered : std_logic;
   attribute syn_keep : boolean;
   attribute syn_keep of clk_pixel_buffered : signal is true;
   attribute syn_keep of clk_pixel_temp : signal is true;
@@ -203,7 +205,8 @@
   signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
 
   begin
-
+    --Reset
+    reset <= not(resetn);
 
     --CLOCKS
     pll_pixel_ddr: Pllvr_DDR_Pixel port map (
@@ -214,8 +217,9 @@
 
     pll_hyperram: Pllvr_Hyperram
     port map (
-        clkout => clk_hyperram_temp,
+        clkout => clk_hyperram_in_temp,
         lock => pllvr_hyperram_lock,
+        clkoutd => clk_hyperram_out_temp,
         reset => reset,
         clkin => clk
     );
@@ -235,16 +239,21 @@
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
-    bufg_clk_hyperram:BUFG
+    bufg_clk_hyperram_in:BUFG
       port map(
-      O=>clk_hyperram_buffered,
-      I=>clk_hyperram_temp
+      O=>clk_hyperram_in_buffered,
+      I=>clk_hyperram_in_temp
+     );
+    bufg_clk_hyperram_out:BUFG
+      port map(
+      O=>clk_hyperram_out_buffered,
+      I=>clk_hyperram_out_temp
      );
 
     --HYPERRAM
     hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
       clk => clk,
-      memory_clk => clk_hyperram_buffered,
+      memory_clk => clk_hyperram_in_buffered,
       pll_lock => pllvr_hyperram_lock,
       rst_n => resetn,
       O_hpram_ck => O_hpram_ck,
@@ -259,19 +268,19 @@
       cmd => cmd,
       cmd_en => cmd_en,
       init_calib => init_calib,
-      clk_out => hyperram_clk_out,
+      clk_out => open,
       data_mask => data_mask
     );
     --Framebuffer
     videoFramebuffer: Video_Frame_Buffer_Top port map (
       I_rst_n => resetn,
-      I_dma_clk => hyperram_clk_out,
-      I_wr_halt => (others => not init_calib),
-      I_rd_halt => (others => not init_calib),
-      I_vin0_clk => clk_pixel_buffered,
-      I_vin0_vs_n  => C1_C0(1),
-      I_vin0_de => DE,
-      I_vin0_data => vin_data,
+      I_dma_clk => clk_hyperram_out_buffered,
+      I_wr_halt => (others => '0'),
+      I_rd_halt => (others => '0'),
+      I_vin0_clk  => clk_pixel_buffered,
+      I_vin0_vs_n => '1',
+      I_vin0_de   => '1',
+      I_vin0_data => x"07E0",
       O_vin0_fifo_full => open,
       I_vout0_clk => clk_pixel_buffered,
       I_vout0_vs_n => C1_C0(1),
@@ -346,7 +355,6 @@
       data_out => b
     );
 
-    reset <= not(resetn);
     clk_pixel <= clk_pixel_buffered;
 
     --VideoTimingGenerator

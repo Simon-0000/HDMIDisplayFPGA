@@ -4,7 +4,7 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Fri Jan  2 22:30:33 2026
+--Created Time: Sun Jan  4 18:49:57 2026
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -13,6 +13,7 @@ entity Pllvr_Hyperram is
     port (
         clkout: out std_logic;
         lock: out std_logic;
+        clkoutd: out std_logic;
         reset: in std_logic;
         clkin: in std_logic
     );
@@ -21,7 +22,6 @@ end Pllvr_Hyperram;
 architecture Behavioral of Pllvr_Hyperram is
 
     signal clkoutp_o: std_logic;
-    signal clkoutd_o: std_logic;
     signal clkoutd3_o: std_logic;
     signal gw_vcc: std_logic;
     signal gw_gnd: std_logic;
@@ -118,7 +118,7 @@ begin
             CLKOUT => clkout,
             LOCK => lock,
             CLKOUTP => clkoutp_o,
-            CLKOUTD => clkoutd_o,
+            CLKOUTD => clkoutd,
             CLKOUTD3 => clkoutd3_o,
             RESET => reset,
             RESET_P => gw_gnd,
