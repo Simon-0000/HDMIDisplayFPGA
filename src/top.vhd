@@ -21,12 +21,16 @@
       r: out std_logic;
       g: out std_logic;
       b: out std_logic;
+      led : inout std_logic;
+      button : inout std_logic;
+      uart0_txd : out std_logic;
+      uart0_rxd : in std_logic
 
-      O_hpram_ck      : out std_logic_vector(0 downto 0);
-      IO_hpram_dq     : inout std_logic_vector(7 downto 0);
-      IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
-      O_hpram_cs_n    : out std_logic_vector(0 downto 0);
-      O_hpram_reset_n : out std_logic_vector(0 downto 0)
+--      O_hpram_ck      : out std_logic_vector(0 downto 0);
+--      IO_hpram_dq     : inout std_logic_vector(7 downto 0);
+--      IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
+--      O_hpram_cs_n    : out std_logic_vector(0 downto 0);
+--      O_hpram_reset_n : out std_logic_vector(0 downto 0)
     );
   end top;
 
@@ -104,6 +108,15 @@
       I_init_calib: in std_logic
     );
   end component;
+  component Gowin_EMPU_Top
+    port (
+      sys_clk: in std_logic;
+      gpio: inout std_logic_vector(15 downto 0);
+      uart0_rxd: in std_logic;
+      uart0_txd: out std_logic;
+      reset_n: in std_logic
+    );
+  end component;
   component BUFG
    port(
      O:out std_logic;
@@ -169,6 +182,8 @@
   signal reset : std_logic;
   signal pllvr_hyperram_lock : std_logic;
 
+  signal gpio : std_logic_vector(15 downto 2);
+
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
   signal clk_pixel_temp : std_logic;
@@ -215,14 +230,14 @@
         clkin => clk
     );
 
-    pll_hyperram: Pllvr_Hyperram
-    port map (
-        clkout => clk_hyperram_in_temp,
-        lock => pllvr_hyperram_lock,
-        clkoutd => clk_hyperram_out_temp,
-        reset => reset,
-        clkin => clk
-    );
+--    pll_hyperram: Pllvr_Hyperram
+--    port map (
+--        clkout => clk_hyperram_in_temp,
+--        lock => pllvr_hyperram_lock,
+--        clkoutd => clk_hyperram_out_temp,
+--        reset => reset,
+--        clkin => clk
+--    );
 
     clkDivPixelBit: Clkdiv_Pixel_Bit port map (
         clkout => clk_pixel_temp,
@@ -239,67 +254,78 @@
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
-    bufg_clk_hyperram_in:BUFG
-      port map(
-      O=>clk_hyperram_in_buffered,
-      I=>clk_hyperram_in_temp
-     );
-    bufg_clk_hyperram_out:BUFG
-      port map(
-      O=>clk_hyperram_out_buffered,
-      I=>clk_hyperram_out_temp
-     );
+--    bufg_clk_hyperram_in:BUFG
+--      port map(
+--      O=>clk_hyperram_in_buffered,
+--      I=>clk_hyperram_in_temp
+--     );
+--    bufg_clk_hyperram_out:BUFG
+--      port map(
+--      O=>clk_hyperram_out_buffered,
+--      I=>clk_hyperram_out_temp
+--     );
 
-    --HYPERRAM
-    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
-      clk => clk,
-      memory_clk => clk_hyperram_in_buffered,
-      pll_lock => pllvr_hyperram_lock,
-      rst_n => resetn,
-      O_hpram_ck => O_hpram_ck,
-      IO_hpram_dq => IO_hpram_dq,
-      IO_hpram_rwds => IO_hpram_rwds,
-      O_hpram_cs_n => O_hpram_cs_n,
-      O_hpram_reset_n => O_hpram_reset_n,
-      wr_data => wr_data,
-      rd_data => rd_data,
-      rd_data_valid => rd_data_valid,
-      addr => addr,
-      cmd => cmd,
-      cmd_en => cmd_en,
-      init_calib => init_calib,
-      clk_out => open,
-      data_mask => data_mask
-    );
-    --Framebuffer
-    videoFramebuffer: Video_Frame_Buffer_Top port map (
-      I_rst_n => resetn,
-      I_dma_clk => clk_hyperram_out_buffered,
-      I_wr_halt => (others => '0'),
-      I_rd_halt => (others => '0'),
-      I_vin0_clk  => clk_pixel_buffered,
-      I_vin0_vs_n => '1',
-      I_vin0_de   => '1',
-      I_vin0_data => x"07E0",
-      O_vin0_fifo_full => open,
-      I_vout0_clk => clk_pixel_buffered,
-      I_vout0_vs_n => C1_C0(1),
-      I_vout0_de => DE,
-      O_vout0_den => open,
-      O_vout0_data => vout_data,
-      O_vout0_fifo_empty => open,
-      O_cmd => cmd,
-      O_cmd_en => cmd_en,
-      O_addr => addr,
-      O_wr_data => wr_data,
-      O_data_mask => data_mask,
-      I_rd_data_valid => rd_data_valid,
-      I_rd_data => rd_data,
-      I_init_calib => init_calib
-    );
-    red_D <= vout_data(15 downto 11) & "000";
-    green_D <= vout_data(10 downto 5) & "00";
-    blue_D <= vout_data(4 downto 0) & "000";
+--    HYPERRAM
+--    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
+--      clk => clk,
+--      memory_clk => clk_hyperram_in_buffered,
+--      pll_lock => pllvr_hyperram_lock,
+--      rst_n => resetn,
+--      O_hpram_ck => O_hpram_ck,
+--      IO_hpram_dq => IO_hpram_dq,
+--      IO_hpram_rwds => IO_hpram_rwds,
+--      O_hpram_cs_n => O_hpram_cs_n,
+--      O_hpram_reset_n => O_hpram_reset_n,
+--      wr_data => wr_data,
+--      rd_data => rd_data,
+--      rd_data_valid => rd_data_valid,
+--      addr => addr,
+--      cmd => cmd,
+--      cmd_en => cmd_en,
+--      init_calib => init_calib,
+--      clk_out => open,
+--      data_mask => data_mask
+--    );
+--    Framebuffer
+--    videoFramebuffer: Video_Frame_Buffer_Top port map (
+--      I_rst_n => resetn,
+--      I_dma_clk => clk_hyperram_out_buffered,
+--      I_wr_halt => (others => '0'),
+--      I_rd_halt => (others => '0'),
+--      I_vin0_clk  => clk_pixel_buffered,
+--      I_vin0_vs_n => '1',
+--      I_vin0_de   => '1',
+--      I_vin0_data => x"07E0",
+--      O_vin0_fifo_full => open,
+--      I_vout0_clk => clk_pixel_buffered,
+--      I_vout0_vs_n => C1_C0(1),
+--      I_vout0_de => DE,
+--      O_vout0_den => open,
+--      O_vout0_data => vout_data,
+--      O_vout0_fifo_empty => open,
+--      O_cmd => cmd,
+--      O_cmd_en => cmd_en,
+--      O_addr => addr,
+--      O_wr_data => wr_data,
+--      O_data_mask => data_mask,
+--      I_rd_data_valid => rd_data_valid,
+--      I_rd_data => rd_data,
+--      I_init_calib => init_calib
+--    );
+--    red_D <= vout_data(15 downto 11) & "000";
+--    green_D <= vout_data(10 downto 5) & "00";
+--    blue_D <= vout_data(4 downto 0) & "000";
+
+    hardcoreM3: Gowin_EMPU_Top
+      port map (
+        sys_clk => clk,
+        gpio(0) => led,
+        gpio(1) => button,
+        gpio(15 downto 2) => gpio,
+        uart0_rxd => uart0_rxd,
+        uart0_txd => uart0_txd,
+        reset_n => resetn
+      );
 
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
@@ -366,14 +392,14 @@
       DE => DE,
       C1_C0 => C1_C0
     );
-    --Test pattern
-      testPattern : RGB565_Pattern_Generator port map(
-      clk => clk_pixel_buffered,
-      reset => reset,
-      pos_x => pos_x,
-      pos_y => pos_y,
-      data_out => vin_data
-    );
+--    Test pattern
+--      testPattern : RGB565_Pattern_Generator port map(
+--      clk => clk_pixel_buffered,
+--      reset => reset,
+--      pos_x => pos_x,
+--      pos_y => pos_y,
+--      data_out => vin_data
+--    );
 
   end top_arch;
 
