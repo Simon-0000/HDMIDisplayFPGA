@@ -9,3 +9,5 @@ temp/
 # Temporary or Backup files
 *.bak
 *.log
+
+Debug/
