@@ -32,7 +32,7 @@
 
 //Task 1
 #define LED0_TASK_PRIO			1
-#define LED0_STK_SIZE 			20
+#define LED0_STK_SIZE 			40
 TaskHandle_t LED0Task_Handler;
 volatile int led0_task_flag = 0;
 
@@ -57,7 +57,7 @@ int main(void)
 {
 	SystemInit();      //Initializes system clock
 	uart_init(UART0,   //Initializes UART0
-	          38400,   //Baudrate
+	          9600,   //Baudrate
 	          1,       //Tx
 	          1,       //Rx
 	          0,       //Tx interrupt
@@ -76,34 +76,15 @@ int main(void)
 
 	sys_tick_init();				//Initializes Systick
 	
-//	taskENTER_CRITICAL();
-	vTaskStartScheduler();
-	vTaskDelay(TASK_DELAY_MS_TO_TICK(2000));
+	taskENTER_CRITICAL();
 
 	//led0_task
-	  while (1)
-		{
-			vTaskDelay(TASK_DELAY_MS_TO_TICK(250));
-			if (0 == led0_task_flag)
-			{
-				GPIO_ResetBit(GPIO0, GPIO_Pin_0);
-			}
-			else
-			{
-				GPIO_SetBit(GPIO0, GPIO_Pin_0);
-			}
-
-	//		printf_str("0.task0\r\n");
-			led0_task_flag = !led0_task_flag;
-			vTaskDelay(TASK_DELAY_MS_TO_TICK(250));
-		}
-//	xTaskCreate((TaskFunction_t )led0_task,
-//              	(const char *   )"led0_task",
-//                (uint16_t       )LED0_STK_SIZE,
-//                (void *         )NULL,
-//                (UBaseType_t    )LED0_TASK_PRIO,
-//                (TaskHandle_t * )&LED0Task_Handler);
-////
+	xTaskCreate((TaskFunction_t )led0_task,
+              	(const char *   )"led0_task",
+                (uint16_t       )LED0_STK_SIZE,
+                (void *         )NULL,
+                (UBaseType_t    )LED0_TASK_PRIO,
+                (TaskHandle_t * )&LED0Task_Handler);
 //	//led1_task
 //	xTaskCreate((TaskFunction_t )led1_task,
 //                (const char *   )"led1_task",
@@ -112,9 +93,10 @@ int main(void)
 //                (UBaseType_t    )LED1_TASK_PRIO,
 //                (TaskHandle_t * )&LED1Task_Handler);
 //
-//	taskEXIT_CRITICAL();
+	taskEXIT_CRITICAL();
 	
-	
+	vTaskStartScheduler();
+
 	while(1);
 }
 
@@ -180,7 +162,19 @@ static void led0_task(void *pvParameters)
 {
   while (1)
 	{
-		vTaskDelay(TASK_DELAY_MS_TO_TICK(250));
+//		vTaskDelay(TASK_DELAY_MS_TO_TICK(2500));
+//		if (0 == led0_task_flag)
+//		{
+//			GPIO_ResetBit(GPIO0, GPIO_Pin_0);
+//		}
+//		else
+//		{
+//			GPIO_SetBit(GPIO0, GPIO_Pin_0);
+//		}
+//		GPIO_SetBit(GPIO0, GPIO_Pin_0);
+
+		printf_str("0.task0\r\n");
+		vTaskDelay(TASK_DELAY_MS_TO_TICK(300));
 		if (0 == led0_task_flag)
 		{
 			GPIO_ResetBit(GPIO0, GPIO_Pin_0);
@@ -189,11 +183,9 @@ static void led0_task(void *pvParameters)
 		{
 			GPIO_SetBit(GPIO0, GPIO_Pin_0);
 		}
-		
-//		printf_str("0.task0\r\n");
 		led0_task_flag = !led0_task_flag;
-		vTaskDelay(TASK_DELAY_MS_TO_TICK(250));
-	}
+
+			}
 }
 
 //Task 2
