@@ -22,15 +22,15 @@
       g: out std_logic;
       b: out std_logic;
       led : inout std_logic;
-      button : inout std_logic;
+--      button : inout std_logic;
       uart0_txd : out std_logic;
-      uart0_rxd : in std_logic
+      uart0_rxd : in std_logic;
 
---      O_hpram_ck      : out std_logic_vector(0 downto 0);
---      IO_hpram_dq     : inout std_logic_vector(7 downto 0);
---      IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
---      O_hpram_cs_n    : out std_logic_vector(0 downto 0);
---      O_hpram_reset_n : out std_logic_vector(0 downto 0)
+      O_hpram_ck      : out std_logic_vector(0 downto 0);
+      IO_hpram_dq     : inout std_logic_vector(7 downto 0);
+      IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
+      O_hpram_cs_n    : out std_logic_vector(0 downto 0);
+      O_hpram_reset_n : out std_logic_vector(0 downto 0)
     );
   end top;
 
@@ -182,7 +182,7 @@
   signal reset : std_logic;
   signal pllvr_hyperram_lock : std_logic;
 
-  signal gpio : std_logic_vector(15 downto 2);
+  signal gpio : std_logic_vector(15 downto 0);
 
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
@@ -230,14 +230,14 @@
         clkin => clk
     );
 
---    pll_hyperram: Pllvr_Hyperram
---    port map (
---        clkout => clk_hyperram_in_temp,
---        lock => pllvr_hyperram_lock,
---        clkoutd => clk_hyperram_out_temp,
---        reset => reset,
---        clkin => clk
---    );
+    pll_hyperram: Pllvr_Hyperram
+    port map (
+        clkout => clk_hyperram_in_temp,
+        lock => pllvr_hyperram_lock,
+        clkoutd => clk_hyperram_out_temp,
+        reset => reset,
+        clkin => clk
+    );
 
     clkDivPixelBit: Clkdiv_Pixel_Bit port map (
         clkout => clk_pixel_temp,
@@ -254,16 +254,16 @@
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
---    bufg_clk_hyperram_in:BUFG
---      port map(
---      O=>clk_hyperram_in_buffered,
---      I=>clk_hyperram_in_temp
---     );
---    bufg_clk_hyperram_out:BUFG
---      port map(
---      O=>clk_hyperram_out_buffered,
---      I=>clk_hyperram_out_temp
---     );
+    bufg_clk_hyperram_in:BUFG
+      port map(
+      O=>clk_hyperram_in_buffered,
+      I=>clk_hyperram_in_temp
+     );
+    bufg_clk_hyperram_out:BUFG
+      port map(
+      O=>clk_hyperram_out_buffered,
+      I=>clk_hyperram_out_temp
+     );
 
 --    HYPERRAM
 --    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
@@ -320,8 +320,8 @@
       port map (
         sys_clk => clk,
         gpio(0) => led,
-        gpio(1) => button,
-        gpio(15 downto 2) => gpio,
+--        gpio(1) => button,
+        gpio(15 downto 1) => gpio(15 downto 1),
         uart0_rxd => uart0_rxd,
         uart0_txd => uart0_txd,
         reset_n => resetn
