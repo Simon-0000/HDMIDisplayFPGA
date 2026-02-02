@@ -51,6 +51,12 @@ static void printf_str(const char *str);
 static void stars_print(uint8_t n);
 static void sw_edition_print(void);
 static void sys_tick_init(void);
+void UART0_Handler(void);
+
+//Global variables
+uint8_t currentColor[3] = {0};
+char colorBuffer[9] = {0};
+volatile uint8_t colorBufferIndex = 0;
 
 /* Functions ------------------------------------------------------------------*/
 int main(void)
@@ -61,14 +67,14 @@ int main(void)
 	          1,       //Tx
 	          1,       //Rx
 	          0,       //Tx interrupt
-	          0,       //Rx interrupt
+	          1,       //Rx interrupt
 	          0,       //Tx overflow interrupt
 	          0);      //Rx overflow interrupt
 	gpio_init();       //Initializes GPIO
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	
-//	sw_edition_print();
+	sw_edition_print();
 	
 //#ifdef LOGO_PRINT_ON
 //	printf_str(LOGO);
@@ -85,21 +91,48 @@ int main(void)
                 (void *         )NULL,
                 (UBaseType_t    )LED0_TASK_PRIO,
                 (TaskHandle_t * )&LED0Task_Handler);
-//	//led1_task
-//	xTaskCreate((TaskFunction_t )led1_task,
-//                (const char *   )"led1_task",
-//                (uint16_t       )LED1_STK_SIZE,
-//                (void *         )NULL,
-//                (UBaseType_t    )LED1_TASK_PRIO,
-//                (TaskHandle_t * )&LED1Task_Handler);
-//
+
+	NVIC_EnableIRQ(UART0_IRQn);
 	taskEXIT_CRITICAL();
 	
 	vTaskStartScheduler();
-
 	while(1);
 }
 
+
+void UART0_Handler(void)
+{
+    if (UART_GetRxIRQStatus(UART0) == SET)
+    {
+    	static char received[2] = {0};
+        received[0] = UART_ReceiveChar(UART0);
+    	if(received[0] != 127)
+    	{
+        	printf_str(received);
+            colorBuffer[colorBufferIndex++] = received[0];
+    	}
+    	else if(colorBufferIndex > 0)
+    	{
+        	printf_str(received);
+    		--colorBufferIndex;
+    	}
+
+        if(received[0] == '\r')
+        {
+        	colorBuffer[colorBufferIndex++] = '\0';
+        	printf_str("\r\n Printed: ");
+        	printf_str(colorBuffer);
+        	printf_str("\r\n>");
+        	colorBufferIndex = 0;
+        }
+        else if(colorBufferIndex >= 9)
+        {
+        	colorBufferIndex = 0;
+        	printf_str("\r\n...Buffer overflow, input ignored... \r\n>");
+        }
+        UART_ClearRxIRQ(UART0);
+    }
+}
 //Print string
 static void printf_str(const char *str)
 {
@@ -128,7 +161,7 @@ static void sw_edition_print(void)
 						 "Author:   "SW_STR_AUTHOR"\r\n");
 	printf_str("************************************************\r\n");
 	stars_print(48);
-	printf_str("\r\n\r\n");
+	printf_str("\r\n\r\n>");
 }
 
 //Initializes Systick
@@ -162,7 +195,9 @@ static void led0_task(void *pvParameters)
 {
   while (1)
 	{
-//		vTaskDelay(TASK_DELAY_MS_TO_TICK(2500));
+		vTaskDelay(TASK_DELAY_MS_TO_TICK(1000));
+
+//		printf_str("0.task0\r\n");
 //		if (0 == led0_task_flag)
 //		{
 //			GPIO_ResetBit(GPIO0, GPIO_Pin_0);
@@ -171,39 +206,7 @@ static void led0_task(void *pvParameters)
 //		{
 //			GPIO_SetBit(GPIO0, GPIO_Pin_0);
 //		}
-//		GPIO_SetBit(GPIO0, GPIO_Pin_0);
+//		led0_task_flag = !led0_task_flag;
 
-		printf_str("0.task0\r\n");
-		vTaskDelay(TASK_DELAY_MS_TO_TICK(300));
-		if (0 == led0_task_flag)
-		{
-			GPIO_ResetBit(GPIO0, GPIO_Pin_0);
-		}
-		else
-		{
-			GPIO_SetBit(GPIO0, GPIO_Pin_0);
-		}
-		led0_task_flag = !led0_task_flag;
-
-			}
-}
-
-//Task 2
-static void led1_task(void *pvParameters)
-{
-  while (1)
-	{
-		if (0 == led1_task_flag)
-		{
-			GPIO_ResetBit(GPIO0, GPIO_Pin_1);
-		}
-		else
-		{
-			GPIO_SetBit(GPIO0, GPIO_Pin_1);
-		}
-		
-//		printf_str("1.task1\r\n\r\n");
-		led1_task_flag = !led1_task_flag;
-//		vTaskDelay(TASK_DELAY_MS_TO_TICK(1000));
 	}
 }

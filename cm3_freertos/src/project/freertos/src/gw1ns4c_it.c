@@ -201,9 +201,9 @@ void USER_INT5_Handler(void)
   * @param  none
   * @retval none
   */
-void UART0_Handler(void)
-{
-}
+//void UART0_Handler(void)
+//{
+//}
 
 /**
   * @brief  This function handles UART1 interrupt request.
