@@ -22,7 +22,8 @@
 #define SW_STR_NAME					"FreerRTOS_V10.2.1"	//Software name
 #define SW_STR_EDITION				"V2.1"				//Software version
 #define SW_STR_AUTHOR				"GOWIN"				//Owner
-
+#define CHAR_BUFFER_SIZE 16
+#define SET_COLOR_CMD "setColor"
 #define LOGO_PRINT_ON
 #ifdef LOGO_PRINT_ON
 #include "logo.h"
@@ -49,13 +50,14 @@ static void led0_task(void *pvParameters);
 static void led1_task(void *pvParameters);
 static void printf_str(const char *str);
 static void stars_print(uint8_t n);
+static void help_print();
 static void sw_edition_print(void);
 static void sys_tick_init(void);
 void UART0_Handler(void);
 
 //Global variables
 uint8_t currentColor[3] = {0};
-char colorBuffer[9] = {0};
+char colorBuffer[CHAR_BUFFER_SIZE] = {0};
 volatile uint8_t colorBufferIndex = 0;
 
 /* Functions ------------------------------------------------------------------*/
@@ -99,6 +101,65 @@ int main(void)
 	while(1);
 }
 
+void substring_before(const char* in, char* out, size_t* size_out, const char seperator)
+{
+	*size_out = 0;
+	while(in[*size_out] != '\0' && in[*size_out] != '\r' && in[*size_out] != seperator)
+	{
+		out[*size_out] = in[*size_out];
+		++(*size_out);
+
+	}
+	out[*size_out] = '\0';
+}
+
+void setColor(const char* rgb_hex_buffer)
+{
+	char *endptr;
+	long rgb_value = strtol(rgb_hex_buffer,&endptr, 8);
+
+//	char hex_str[10];
+//	sprintf(hex_str, "0x%06X\r\n", (unsigned int)rgb_value);
+//	printf_str("\r\n setColor=");
+//	printf_str(hex_str);
+}
+
+int handle_uart_command(const char* buffer, uint8_t size)
+{
+
+	printf_str(buffer);
+	char cmdBuffer[CHAR_BUFFER_SIZE];
+	size_t cmdBufferSize = 0;
+	substring_before(buffer,cmdBuffer,&cmdBufferSize,' ');
+	printf_str(cmdBuffer);
+
+	if(cmdBufferSize != 0 && strcmp(cmdBuffer, SET_COLOR_CMD) == 0)
+	{
+		substring_before(&buffer[strlen(SET_COLOR_CMD) + 1],cmdBuffer,&cmdBufferSize,' ');
+		if(cmdBufferSize == 6)
+		{
+			printf_str(cmdBuffer);
+			printf_str("\r\n setColor called\r\n");
+			setColor(cmdBuffer);
+			return 1;
+		}
+		else
+		{
+			printf_str("\r\nInvalid syntax for '");
+			printf_str(SET_COLOR_CMD);
+			printf_str("', use hex numbers '<RRGGBB>'");
+		}
+	}
+	else
+	{
+		printf_str("\r\nInvalid command '");
+		printf_str(cmdBuffer);
+		printf_str("'");
+	}
+
+	return 0;
+}
+
 
 void UART0_Handler(void)
 {
@@ -120,12 +181,13 @@ void UART0_Handler(void)
         if(received[0] == '\r')
         {
         	colorBuffer[colorBufferIndex++] = '\0';
-        	printf_str("\r\n Printed: ");
-        	printf_str(colorBuffer);
+        	if(!handle_uart_command(colorBuffer, colorBufferIndex))
+        		help_print();
         	printf_str("\r\n>");
         	colorBufferIndex = 0;
+
         }
-        else if(colorBufferIndex >= 9)
+        else if(colorBufferIndex >= CHAR_BUFFER_SIZE)
         {
         	colorBufferIndex = 0;
         	printf_str("\r\n...Buffer overflow, input ignored... \r\n>");
@@ -146,6 +208,13 @@ static void stars_print(uint8_t n)
 	{
 		printf_str("*");
 	}
+}
+
+static void help_print()
+{
+	printf_str("\r\n--- Available Commands ---");
+	printf_str("\r\n 'setColor' <RRGGBB>");
+	printf_str("\r\n--------------------------\r\n");
 }
 
 //Print software information

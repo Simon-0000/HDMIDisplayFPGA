@@ -276,52 +276,52 @@
      );
 
 --    HYPERRAM
-    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
-      clk => clk,
-      memory_clk => clk_hyperram_in_buffered,
-      pll_lock => pllvr_hyperram_lock,
-      rst_n => resetn,
-      O_hpram_ck => O_hpram_ck,
-      IO_hpram_dq => IO_hpram_dq,
-      IO_hpram_rwds => IO_hpram_rwds,
-      O_hpram_cs_n => O_hpram_cs_n,
-      O_hpram_reset_n => O_hpram_reset_n,
-      wr_data => wr_data,
-      rd_data => rd_data,
-      rd_data_valid => rd_data_valid,
-      addr => addr,
-      cmd => cmd,
-      cmd_en => cmd_en,
-      init_calib => init_calib,
-      clk_out => open,
-      data_mask => data_mask
-    );
+--    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
+--      clk => clk,
+--      memory_clk => clk_hyperram_in_buffered,
+--      pll_lock => pllvr_hyperram_lock,
+--      rst_n => resetn,
+--      O_hpram_ck => O_hpram_ck,
+--      IO_hpram_dq => IO_hpram_dq,
+--      IO_hpram_rwds => IO_hpram_rwds,
+--      O_hpram_cs_n => O_hpram_cs_n,
+--      O_hpram_reset_n => O_hpram_reset_n,
+--      wr_data => wr_data,
+--      rd_data => rd_data,
+--      rd_data_valid => rd_data_valid,
+--      addr => addr,
+--      cmd => cmd,
+--      cmd_en => cmd_en,
+--      init_calib => init_calib,
+--      clk_out => open,
+--      data_mask => data_mask
+--    );
 --    Framebuffer
-    videoFramebuffer: Video_Frame_Buffer_Top port map (
-      I_rst_n => resetn,
-      I_dma_clk => clk_hyperram_out_buffered,
-      I_wr_halt => (others => '0'),
-      I_rd_halt => (others => '0'),
-      I_vin0_clk  => clk_pixel_buffered,
-      I_vin0_vs_n => '1',
-      I_vin0_de   => '1',
-      I_vin0_data => x"07E0",
-      O_vin0_fifo_full => open,
-      I_vout0_clk => clk_pixel_buffered,
-      I_vout0_vs_n => C1_C0(1),
-      I_vout0_de => DE,
-      O_vout0_den => open,
-      O_vout0_data => vout_data,
-      O_vout0_fifo_empty => open,
-      O_cmd => cmd,
-      O_cmd_en => cmd_en,
-      O_addr => addr,
-      O_wr_data => wr_data,
-      O_data_mask => data_mask,
-      I_rd_data_valid => rd_data_valid,
-      I_rd_data => rd_data,
-      I_init_calib => init_calib
-    );
+--    videoFramebuffer: Video_Frame_Buffer_Top port map (
+--      I_rst_n => resetn,
+--      I_dma_clk => clk_hyperram_out_buffered,
+--      I_wr_halt => (others => '0'),
+--      I_rd_halt => (others => '0'),
+--      I_vin0_clk  => clk_pixel_buffered,
+--      I_vin0_vs_n => '1',
+--      I_vin0_de   => '1',
+--      I_vin0_data => x"07E0",
+--      O_vin0_fifo_full => open,
+--      I_vout0_clk => clk_pixel_buffered,
+--      I_vout0_vs_n => C1_C0(1),
+--      I_vout0_de => DE,
+--      O_vout0_den => open,
+--      O_vout0_data => vout_data,
+--      O_vout0_fifo_empty => open,
+--      O_cmd => cmd,
+--      O_cmd_en => cmd_en,
+--      O_addr => addr,
+--      O_wr_data => wr_data,
+--      O_data_mask => data_mask,
+--      I_rd_data_valid => rd_data_valid,
+--      I_rd_data => rd_data,
+--      I_init_calib => init_calib
+--    );
     red_D <= vout_data(15 downto 11) & "000";
     green_D <= vout_data(10 downto 5) & "00";
     blue_D <= vout_data(4 downto 0) & "000";
