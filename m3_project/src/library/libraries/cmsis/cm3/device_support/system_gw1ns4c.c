@@ -63,7 +63,7 @@
   Define clocks
  *----------------------------------------------------------------------------*/
 //#define __XTAL            (200000000UL)    /* Oscillator frequency */
-#define __XTAL            (160000000UL)    /* Oscillator frequency */
+#define __XTAL            (54000000UL)    /* Oscillator frequency */
 //#define __XTAL			  (100000000UL)    /* Oscillator frequency */
 #define __SYSTEM_CLOCK    (__XTAL / 2)     /* System frequency     */
 
