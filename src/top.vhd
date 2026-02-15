@@ -118,14 +118,26 @@
 --    );
 --  end component;
 
-  component Gowin_EMPU_Top
-    port (
-      sys_clk: in std_logic;
-      uart0_rxd: in std_logic;
-      uart0_txd: out std_logic;
-      reset_n: in std_logic
-    );
-  end component;
+component Gowin_EMPU_Top
+	port (
+		sys_clk: in std_logic;
+		uart0_rxd: in std_logic;
+		uart0_txd: out std_logic;
+		master_pclk: out std_logic;
+		master_prst: out std_logic;
+		master_penable: out std_logic;
+		master_paddr: out std_logic_vector(7 downto 0);
+		master_pwrite: out std_logic;
+		master_pwdata: out std_logic_vector(31 downto 0);
+		master_pstrb: out std_logic_vector(3 downto 0);
+		master_pprot: out std_logic_vector(2 downto 0);
+		master_psel1: out std_logic;
+		master_prdata1: in std_logic_vector(31 downto 0);
+		master_pready1: in std_logic;
+		master_pslverr1: in std_logic;
+		reset_n: in std_logic
+	);
+end component;
 
   component BUFG
    port(
@@ -221,6 +233,11 @@
   signal red_D : std_logic_vector(7 downto 0) := "11111111";
   signal green_D : std_logic_vector(7 downto 0) := "11111111";
   signal blue_D : std_logic_vector(7 downto 0) := "11111111";
+
+  signal red_tmp_D, red_sync_1, red_sync_2     : std_logic_vector(7 downto 0)  := "11111111";
+  signal green_tmp_D, green_sync_1, green_sync_2 : std_logic_vector(7 downto 0)  := "11111111";
+  signal blue_tmp_D, blue_sync_1, blue_sync_2   : std_logic_vector(7 downto 0)  := "11111111";
+
   signal red_q_out : std_logic_vector(9 downto 0);
   signal green_q_out : std_logic_vector(9 downto 0);
   signal blue_q_out : std_logic_vector(9 downto 0);
@@ -228,6 +245,21 @@
   signal DE : std_logic;
   signal pos_x : unsigned(9 downto 0) := to_unsigned(0,10);
   signal pos_y : unsigned(9 downto 0) := to_unsigned(0,10);
+
+  signal master_pclk: std_logic;
+  signal master_prst: std_logic;
+  signal master_penable: std_logic;
+  signal master_paddr: std_logic_vector(7 downto 0);
+  signal master_pwrite: std_logic;
+  signal master_pwdata: std_logic_vector(31 downto 0);
+  signal master_pstrb: std_logic_vector(3 downto 0);
+  signal master_pprot: std_logic_vector(2 downto 0);
+  signal master_psel1: std_logic;
+  signal master_prdata1: std_logic_vector(31 downto 0);
+  signal master_pready1: std_logic;
+  signal master_pslverr1: std_logic;
+
+
 
   begin
     --Reset
@@ -322,21 +354,82 @@
 --      I_rd_data => rd_data,
 --      I_init_calib => init_calib
 --    );
-    red_D <= vout_data(15 downto 11) & "000";
-    green_D <= vout_data(10 downto 5) & "00";
-    blue_D <= vout_data(4 downto 0) & "000";
+--    red_D <= vout_data(15 downto 11) & "000";
+--    green_D <= vout_data(10 downto 5) & "00";
+--    blue_D <= vout_data(4 downto 0) & "000";
 
-    hardcoreM3: Gowin_EMPU_Top
-      port map (
-        sys_clk => clk,
+--    hardcoreM3: Gowin_EMPU_Top
+--      port map (
+--        sys_clk => clk,
 --        gpio(0) => led,
 --        gpio(1) => button,
 --        gpio(15 downto 1) => gpio(15 downto 1),
-        uart0_rxd => uart0_rxd,
-        uart0_txd => uart0_txd,
-        reset_n => resetn
-      );
+--        uart0_rxd => uart0_rxd,
+--        uart0_txd => uart0_txd,
+--        reset_n => resetn
+--      );
 
+  hardcoreM3: Gowin_EMPU_Top
+    port map (
+      sys_clk => clk,
+      uart0_rxd => uart0_rxd,
+      uart0_txd => uart0_txd,
+      master_pclk => master_pclk,
+      master_prst => master_prst,
+      master_penable => master_penable,
+      master_paddr => master_paddr,
+      master_pwrite => master_pwrite,
+      master_pwdata => master_pwdata,
+      master_pstrb => master_pstrb,
+      master_pprot => master_pprot,
+      master_psel1 => master_psel1,
+      master_prdata1 => master_prdata1,
+      master_pready1 => master_pready1,
+      master_pslverr1 => master_pslverr1,
+      reset_n => resetn
+    );
+ process (master_pclk)
+    begin
+      if rising_edge(master_pclk) then
+        if master_prst = '0' then
+          master_pready1 <= '0';
+          master_pslverr1 <= '0';
+
+          red_tmp_D   <= (others => '1');
+          green_tmp_D <= (others => '1');
+          blue_tmp_D  <= (others => '1');
+        else
+          master_pready1 <= '1'; 
+          master_pslverr1 <= '0';
+          if master_psel1 = '1' and master_penable = '1' then
+            if master_pwrite = '1' then
+              red_tmp_D   <= master_pwdata(23 downto 16);
+              green_tmp_D <= master_pwdata(15 downto 8);
+              blue_tmp_D  <= master_pwdata(7 downto 0);
+            end if;
+          end if;
+        end if;
+      end if;
+    end process;
+
+    process (clk_pixel_buffered)
+    begin
+      if rising_edge(clk_pixel_buffered) then
+        red_sync_1   <= red_tmp_D;
+        red_sync_2   <= red_sync_1;
+        
+        green_sync_1 <= green_tmp_D;
+        green_sync_2 <= green_sync_1;
+        
+        blue_sync_1  <= blue_tmp_D;
+        blue_sync_2  <= blue_sync_1;
+      end if;
+    end process;
+
+
+    red_D <= red_sync_2;
+    green_D <= green_sync_2;
+    blue_D <= blue_sync_2;
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,

@@ -13,6 +13,7 @@
 #include "gw1ns4c.h"
 #include "uart.h"
 
+#define APB2_MASTER_1_BASE 0x40002400
 #define CHAR_BUFFER_SIZE 16
 #define SET_COLOR_CMD "setColor"
 
@@ -26,7 +27,6 @@ static void setColor(const char* rgb_hex_buffer);
 static int handle_uart_command(const char* buffer, uint8_t size);
 static void UART0_Handler(void);
 
-/* Definitions ---------------------------------------------------------------*/
 
 int main(void)
 {
@@ -39,8 +39,6 @@ int main(void)
 	          1,       //Rx interrupt
 	          0,       //Tx overflow interrupt
 	          0);      //Rx overflow interrupt
-//	help_print();
-
 
     rt_kprintf("hello :)\n");
 
@@ -60,6 +58,7 @@ static void setColor(const char* rgb_hex_buffer)
 	rt_snprintf(hex_str, sizeof(hex_str), "0x%06X\r\n", (unsigned int)rgb_value);
 	rt_kprintf("\r\n setColor=");
 	rt_kprintf(hex_str);
+	*((volatile uint32_t*)APB2_MASTER_1_BASE) = (uint32_t)rgb_value;
 }
 
 void setColor_cmd(int argc, char **argv)
