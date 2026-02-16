@@ -7,6 +7,7 @@
     <FileList>
         <File path="src/Serializer.vhd" type="file.vhdl" enable="1"/>
         <File path="src/TMDS_encoder.vhd" type="file.vhdl" enable="1"/>
+        <File path="src/clock_domain_crossing.vhd" type="file.vhdl" enable="1"/>
         <File path="src/gowin_clkdiv/clkdiv_pixel_bit.vhd" type="file.vhdl" enable="1"/>
         <File path="src/gowin_empu/gowin_empu.vhd" type="file.vhdl" enable="1"/>
         <File path="src/gowin_pllvr/pllvr_ddr_pixel.vhd" type="file.vhdl" enable="1"/>

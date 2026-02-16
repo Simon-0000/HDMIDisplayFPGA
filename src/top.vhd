@@ -187,6 +187,20 @@ end component;
       C1_C0 : out std_logic_vector(1 downto 0)
     );
   end component;
+
+  component ClockDomainCrossing is
+  generic
+  (
+    N : positive := 1
+  );
+  port(
+    clk : in std_logic;
+    data_in : in std_logic_vector(N - 1 downto 0);
+    data_out : out std_logic_vector(N - 1 downto 0)
+  );
+  end component;
+
+
   component RGB565_Pattern_Generator is
     generic(
       H_BITS : positive := 10;
@@ -412,24 +426,48 @@ end component;
       end if;
     end process;
 
-    process (clk_pixel_buffered)
-    begin
-      if rising_edge(clk_pixel_buffered) then
-        red_sync_1   <= red_tmp_D;
-        red_sync_2   <= red_sync_1;
-        
-        green_sync_1 <= green_tmp_D;
-        green_sync_2 <= green_sync_1;
-        
-        blue_sync_1  <= blue_tmp_D;
-        blue_sync_2  <= blue_sync_1;
-      end if;
-    end process;
+
+   redClockDomainCrossing : ClockDomainCrossing 
+    generic map( N => 8 ) 
+    port map(
+      clk => clk_pixel_buffered,
+      data_in => red_tmp_D,
+      data_out => red_D
+    );
+
+   greenClockDomainCrossing : ClockDomainCrossing 
+    generic map( N => 8 ) 
+    port map(
+      clk => clk_pixel_buffered,
+      data_in => green_tmp_D,
+      data_out => green_D
+    );
+
+   blueClockDomainCrossing : ClockDomainCrossing 
+    generic map( N => 8 ) 
+    port map(
+      clk => clk_pixel_buffered,
+      data_in => blue_tmp_D,
+      data_out => blue_D
+    );
+--    process (clk_pixel_buffered)
+--    begin
+--      if rising_edge(clk_pixel_buffered) then
+--        red_sync_1   <= red_tmp_D;
+--        red_sync_2   <= red_sync_1;
+--        
+--        green_sync_1 <= green_tmp_D;
+--        green_sync_2 <= green_sync_1;
+--        
+--        blue_sync_1  <= blue_tmp_D;
+--        blue_sync_2  <= blue_sync_1;
+--      end if;
+--    end process;
 
 
-    red_D <= red_sync_2;
-    green_D <= green_sync_2;
-    blue_D <= blue_sync_2;
+--    red_D <= red_sync_2;
+--    green_D <= green_sync_2;
+--    blue_D <= blue_sync_2;
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,

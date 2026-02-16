@@ -14,13 +14,9 @@
 #include "uart.h"
 
 #define APB2_MASTER_1_BASE 0x40002400
-#define CHAR_BUFFER_SIZE 16
 #define SET_COLOR_CMD "setColor"
 
 
-uint8_t currentColor[3] = {0};
-char colorBuffer[CHAR_BUFFER_SIZE] = {0};
-volatile uint8_t colorBufferIndex = 0;
 
 
 static void setColor(const char* rgb_hex_buffer);
