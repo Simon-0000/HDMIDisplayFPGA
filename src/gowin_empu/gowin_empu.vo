@@ -2,7 +2,7 @@
 //All rights reserved.
 //File Title: Post-PnR Verilog Simulation Model file
 //Tool Version: V1.9.11.03 Education
-//Created Time: Sat Feb 14 21:34:33 2026
+//Created Time: Thu Feb 26 21:15:37 2026
 
 `timescale 100 ps/100 ps
 module Gowin_EMPU_Top(
@@ -92,7 +92,7 @@ wire \Gowin_EMPU_inst/apbtargexp2_pslverr ;
 wire [12:0] \Gowin_EMPU_inst/main_gowinemcu_ahbflash_addr_resetinserter_next_value ;
 wire [12:0] \Gowin_EMPU_inst/main_gowinemcu_ahbflash_addr ;
 wire [1:0] \Gowin_EMPU_inst/builder_resetinserter_state ;
-wire [11:0] \Gowin_EMPU_inst/sram0_addr ;
+wire [10:0] \Gowin_EMPU_inst/sram0_addr ;
 wire [3:0] \Gowin_EMPU_inst/sram0_wren ;
 wire [31:0] \Gowin_EMPU_inst/sram0_wdata ;
 wire [14:2] \Gowin_EMPU_inst/targflash0_haddr ;
@@ -103,7 +103,7 @@ wire [31:0] \Gowin_EMPU_inst/sram0_rdata ;
 wire [31:0] \Gowin_EMPU_inst/apbtargexp2_prdata ;
 wire [15:0] \Gowin_EMPU_inst/IOEXPOUTPUTO ;
 wire [15:0] \Gowin_EMPU_inst/IOEXPOUTPUTENO ;
-wire [12:12] \Gowin_EMPU_inst/SRAM0ADDR ;
+wire [12:11] \Gowin_EMPU_inst/SRAM0ADDR ;
 wire [28:0] \Gowin_EMPU_inst/TARGFLASH0HADDR ;
 wire [0:0] \Gowin_EMPU_inst/TARGFLASH0HTRANS ;
 wire [2:0] \Gowin_EMPU_inst/TARGFLASH0HSIZE ;
@@ -121,17 +121,13 @@ wire [31:0] \Gowin_EMPU_inst/INITEXP0HRDATA ;
 wire [2:0] \Gowin_EMPU_inst/INITEXP0HRUSER ;
 wire [3:0] \Gowin_EMPU_inst/TPIUTRACEDATA ;
 wire \Gowin_EMPU_inst/u_sram_subsystem/n36_6 ;
+wire \Gowin_EMPU_inst/u_sram_subsystem/n70_6 ;
 wire \Gowin_EMPU_inst/u_sram_subsystem/n104_6 ;
-wire \Gowin_EMPU_inst/u_sram_subsystem/n172_6 ;
-wire \Gowin_EMPU_inst/u_sram_subsystem/n240_6 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_0 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_1 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_2 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_3 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_4 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_5 ;
-wire [31:4] \Gowin_EMPU_inst/u_sram_subsystem/DO_6 ;
+wire \Gowin_EMPU_inst/u_sram_subsystem/n138_6 ;
+wire [31:8] \Gowin_EMPU_inst/u_sram_subsystem/DO ;
+wire [31:8] \Gowin_EMPU_inst/u_sram_subsystem/DO_0 ;
+wire [31:8] \Gowin_EMPU_inst/u_sram_subsystem/DO_1 ;
+wire [31:8] \Gowin_EMPU_inst/u_sram_subsystem/DO_2 ;
 wire \Gowin_EMPU_inst/u_gw_peripherals_interconnect/u_gw_cmsdk_apb2_slave_mux/master_psel1_d_4 ;
 wire \Gowin_EMPU_inst/u_gw_peripherals_interconnect/u_gw_cmsdk_apb2_slave_mux/apbtargexp2_pready_14 ;
 VCC VCC_cZ (
@@ -467,7 +463,7 @@ EMCU \Gowin_EMPU_inst/u_emcu  (
 	.TPIUTRACECLK(\Gowin_EMPU_inst/trace_clk ),
 	.IOEXPOUTPUTO({\Gowin_EMPU_inst/IOEXPOUTPUTO [15:0]}),
 	.IOEXPOUTPUTENO({\Gowin_EMPU_inst/IOEXPOUTPUTENO [15:0]}),
-	.SRAM0ADDR({\Gowin_EMPU_inst/SRAM0ADDR [12], \Gowin_EMPU_inst/sram0_addr [11:0]}),
+	.SRAM0ADDR({\Gowin_EMPU_inst/SRAM0ADDR [12:11], \Gowin_EMPU_inst/sram0_addr [10:0]}),
 	.SRAM0WREN({\Gowin_EMPU_inst/sram0_wren [3:0]}),
 	.SRAM0WDATA({\Gowin_EMPU_inst/sram0_wdata [31:0]}),
 	.TARGFLASH0HADDR({\Gowin_EMPU_inst/TARGFLASH0HADDR [28:15], \Gowin_EMPU_inst/targflash0_haddr [14:2], \Gowin_EMPU_inst/TARGFLASH0HADDR [1:0]}),
@@ -503,7 +499,7 @@ FLASH256K \Gowin_EMPU_inst/u_FLASH256K  (
 	.DIN({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND}),
 	.DOUT({\Gowin_EMPU_inst/targflash0_hrdata [31:0]})
 );
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00  (
+SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0  (
 	.CLKA(sys_clk),
 	.CEA(\Gowin_EMPU_inst/sram0_wren [0]),
 	.RESETA(GND),
@@ -513,41 +509,41 @@ SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00  (
 	.OCE(VCC),
 	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
 	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [3:0]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO [31:4], \Gowin_EMPU_inst/sram0_rdata [3:0]})
+	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [7:0]}),
+	.ADA({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.ADB({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO [31:8], \Gowin_EMPU_inst/sram0_rdata [7:0]})
 );
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_00 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01  (
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .READ_MODE=1'b0;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .BIT_WIDTH_0=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .BIT_WIDTH_1=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .RESET_MODE="SYNC";
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .BLK_SEL_0=3'b111;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_0 .BLK_SEL_1=3'b111;
+SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1  (
 	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [0]),
+	.CEA(\Gowin_EMPU_inst/sram0_wren [1]),
 	.RESETA(GND),
 	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n36_6 ),
+	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n70_6 ),
 	.RESETB(\Gowin_EMPU_inst/n37_6 ),
 	.OCE(VCC),
 	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
 	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [7:4]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_0 [31:4], \Gowin_EMPU_inst/sram0_rdata [7:4]})
+	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [15:8]}),
+	.ADA({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.ADB({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_0 [31:8], \Gowin_EMPU_inst/sram0_rdata [15:8]})
 );
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_01 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10  (
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .READ_MODE=1'b0;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .BIT_WIDTH_0=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .BIT_WIDTH_1=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .RESET_MODE="SYNC";
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .BLK_SEL_0=3'b111;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_1 .BLK_SEL_1=3'b111;
+SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2  (
 	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [1]),
+	.CEA(\Gowin_EMPU_inst/sram0_wren [2]),
 	.RESETA(GND),
 	.CLKB(sys_clk),
 	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n104_6 ),
@@ -555,122 +551,38 @@ SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10  (
 	.OCE(VCC),
 	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
 	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [11:8]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_1 [31:4], \Gowin_EMPU_inst/sram0_rdata [11:8]})
+	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [23:16]}),
+	.ADA({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.ADB({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_1 [31:8], \Gowin_EMPU_inst/sram0_rdata [23:16]})
 );
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_10 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11  (
-	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [1]),
-	.RESETA(GND),
-	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n104_6 ),
-	.RESETB(\Gowin_EMPU_inst/n37_6 ),
-	.OCE(VCC),
-	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [15:12]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_2 [31:4], \Gowin_EMPU_inst/sram0_rdata [15:12]})
-);
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_11 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20  (
-	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [2]),
-	.RESETA(GND),
-	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n172_6 ),
-	.RESETB(\Gowin_EMPU_inst/n37_6 ),
-	.OCE(VCC),
-	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [19:16]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_3 [31:4], \Gowin_EMPU_inst/sram0_rdata [19:16]})
-);
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_20 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21  (
-	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [2]),
-	.RESETA(GND),
-	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n172_6 ),
-	.RESETB(\Gowin_EMPU_inst/n37_6 ),
-	.OCE(VCC),
-	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [23:20]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_4 [31:4], \Gowin_EMPU_inst/sram0_rdata [23:20]})
-);
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_21 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30  (
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .READ_MODE=1'b0;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .BIT_WIDTH_0=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .BIT_WIDTH_1=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .RESET_MODE="SYNC";
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .BLK_SEL_0=3'b111;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_2 .BLK_SEL_1=3'b111;
+SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3  (
 	.CLKA(sys_clk),
 	.CEA(\Gowin_EMPU_inst/sram0_wren [3]),
 	.RESETA(GND),
 	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n240_6 ),
+	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n138_6 ),
 	.RESETB(\Gowin_EMPU_inst/n37_6 ),
 	.OCE(VCC),
 	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
 	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [27:24]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_5 [31:4], \Gowin_EMPU_inst/sram0_rdata [27:24]})
+	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [31:24]}),
+	.ADA({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.ADB({\Gowin_EMPU_inst/sram0_addr [10:0], GND, GND, GND}),
+	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_2 [31:8], \Gowin_EMPU_inst/sram0_rdata [31:24]})
 );
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_30 .BLK_SEL_1=3'b111;
-SDPB \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31  (
-	.CLKA(sys_clk),
-	.CEA(\Gowin_EMPU_inst/sram0_wren [3]),
-	.RESETA(GND),
-	.CLKB(sys_clk),
-	.CEB(\Gowin_EMPU_inst/u_sram_subsystem/n240_6 ),
-	.RESETB(\Gowin_EMPU_inst/n37_6 ),
-	.OCE(VCC),
-	.BLKSELA({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.BLKSELB({\Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs , \Gowin_EMPU_inst/sram0_cs }),
-	.DI({GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, GND, \Gowin_EMPU_inst/sram0_wdata [31:28]}),
-	.ADA({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.ADB({\Gowin_EMPU_inst/sram0_addr [11:0], GND, GND}),
-	.DO({\Gowin_EMPU_inst/u_sram_subsystem/DO_6 [31:4], \Gowin_EMPU_inst/sram0_rdata [31:28]})
-);
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .READ_MODE=1'b0;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .BIT_WIDTH_0=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .BIT_WIDTH_1=4;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .RESET_MODE="SYNC";
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .BLK_SEL_0=3'b111;
-defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_31 .BLK_SEL_1=3'b111;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .READ_MODE=1'b0;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .BIT_WIDTH_0=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .BIT_WIDTH_1=8;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .RESET_MODE="SYNC";
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .BLK_SEL_0=3'b111;
+defparam \Gowin_EMPU_inst/u_sram_subsystem/bram_sdp_3 .BLK_SEL_1=3'b111;
 INV \Gowin_EMPU_inst/u_sram_subsystem/n36_s2  (
 	.I(\Gowin_EMPU_inst/sram0_wren [0]),
 	.O(\Gowin_EMPU_inst/u_sram_subsystem/n36_6 )
@@ -679,17 +591,17 @@ INV \Gowin_EMPU_inst/u_sram_subsystem/n37_s2  (
 	.I(\Gowin_EMPU_inst/mtx_hreset_n ),
 	.O(\Gowin_EMPU_inst/n37_6 )
 );
-INV \Gowin_EMPU_inst/u_sram_subsystem/n104_s2  (
+INV \Gowin_EMPU_inst/u_sram_subsystem/n70_s2  (
 	.I(\Gowin_EMPU_inst/sram0_wren [1]),
+	.O(\Gowin_EMPU_inst/u_sram_subsystem/n70_6 )
+);
+INV \Gowin_EMPU_inst/u_sram_subsystem/n104_s2  (
+	.I(\Gowin_EMPU_inst/sram0_wren [2]),
 	.O(\Gowin_EMPU_inst/u_sram_subsystem/n104_6 )
 );
-INV \Gowin_EMPU_inst/u_sram_subsystem/n172_s2  (
-	.I(\Gowin_EMPU_inst/sram0_wren [2]),
-	.O(\Gowin_EMPU_inst/u_sram_subsystem/n172_6 )
-);
-INV \Gowin_EMPU_inst/u_sram_subsystem/n240_s2  (
+INV \Gowin_EMPU_inst/u_sram_subsystem/n138_s2  (
 	.I(\Gowin_EMPU_inst/sram0_wren [3]),
-	.O(\Gowin_EMPU_inst/u_sram_subsystem/n240_6 )
+	.O(\Gowin_EMPU_inst/u_sram_subsystem/n138_6 )
 );
 LUT2 \Gowin_EMPU_inst/u_gw_peripherals_interconnect/u_gw_cmsdk_apb2_slave_mux/master_psel1_d_s  (
 	.I0(\Gowin_EMPU_inst/u_gw_peripherals_interconnect/u_gw_cmsdk_apb2_slave_mux/master_psel1_d_4 ),

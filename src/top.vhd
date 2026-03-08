@@ -27,6 +27,7 @@
       uart0_rxd : in std_logic;
 
       O_hpram_ck      : out std_logic_vector(0 downto 0);
+      O_hpram_ck_n    : out std_logic_vector(0 downto 0);
       IO_hpram_dq     : inout std_logic_vector(7 downto 0);
       IO_hpram_rwds   : inout std_logic_vector(0 downto 0);
       O_hpram_cs_n    : out std_logic_vector(0 downto 0);
@@ -66,6 +67,7 @@
       pll_lock: in std_logic;
       rst_n: in std_logic;
       O_hpram_ck: out std_logic_vector(0 downto 0);
+      O_hpram_ck_n: out std_logic_vector(0 downto 0);
       IO_hpram_dq: inout std_logic_vector(7 downto 0);
       IO_hpram_rwds: inout std_logic_vector(0 downto 0);
       O_hpram_cs_n: out std_logic_vector(0 downto 0);
@@ -228,7 +230,7 @@ end component;
   signal init_calib : std_logic;
   signal clk_out : std_logic;
   signal data_mask : std_logic_vector(3 downto 0);
-  signal vout_data: std_logic_vector(15 downto 0);
+  signal vout_data: std_logic_vector(15 downto 0) := "1111111111111111";
 
   signal red_D : std_logic_vector(7 downto 0) := "11111111";
   signal green_D : std_logic_vector(7 downto 0) := "11111111";
@@ -258,9 +260,16 @@ end component;
   signal master_prdata1: std_logic_vector(31 downto 0);
   signal master_pready1: std_logic;
   signal master_pslverr1: std_logic;
+  signal debug_fifo_empty : std_logic;
+  signal debug_fifo_full  : std_logic;
 
-
-
+  signal cmd_en_pipe : std_logic;
+  signal addr_pipe   : std_logic_vector(21 downto 0);
+  signal wr_data_pipe : std_logic_vector(31 downto 0);
+  attribute syn_preserve : boolean;
+  attribute syn_preserve of cmd_en_pipe : signal is true;
+  signal por_resetn : std_logic := '0';
+  signal por_cnt    : unsigned(15 downto 0) := (others => '0');
   begin
     --Reset
     reset <= not(resetn);
@@ -296,79 +305,92 @@ end component;
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
-    bufg_clk_hyperram_in:BUFG
-      port map(
-      O=>clk_hyperram_in_buffered,
-      I=>clk_hyperram_in_temp
-     );
-    bufg_clk_hyperram_out:BUFG
-      port map(
-      O=>clk_hyperram_out_buffered,
-      I=>clk_hyperram_out_temp
-     );
+--    bufg_clk_hyperram_in:BUFG
+--      port map(
+--      O=>clk_hyperram_in_buffered,
+--      I=>clk_hyperram_in_temp
+--     );
+--    bufg_clk_hyperram_out:BUFG
+--      port map(
+--      O=>clk_hyperram_out_buffered,
+--      I=>clk_hyperram_out_temp
+--     );
 
 --    HYPERRAM
---    hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
---      clk => clk,
---      memory_clk => clk_hyperram_in_buffered,
---      pll_lock => pllvr_hyperram_lock,
---      rst_n => resetn,
---      O_hpram_ck => O_hpram_ck,
---      IO_hpram_dq => IO_hpram_dq,
---      IO_hpram_rwds => IO_hpram_rwds,
---      O_hpram_cs_n => O_hpram_cs_n,
---      O_hpram_reset_n => O_hpram_reset_n,
---      wr_data => wr_data,
---      rd_data => rd_data,
---      rd_data_valid => rd_data_valid,
---      addr => addr,
---      cmd => cmd,
---      cmd_en => cmd_en,
---      init_calib => init_calib,
---      clk_out => open,
---      data_mask => data_mask
---    );
---    Framebuffer
---    videoFramebuffer: Video_Frame_Buffer_Top port map (
---      I_rst_n => resetn,
---      I_dma_clk => clk_hyperram_out_buffered,
---      I_wr_halt => (others => '0'),
---      I_rd_halt => (others => '0'),
---      I_vin0_clk  => clk_pixel_buffered,
---      I_vin0_vs_n => '1',
---      I_vin0_de   => '1',
---      I_vin0_data => x"07E0",
---      O_vin0_fifo_full => open,
---      I_vout0_clk => clk_pixel_buffered,
---      I_vout0_vs_n => C1_C0(1),
---      I_vout0_de => DE,
---      O_vout0_den => open,
---      O_vout0_data => vout_data,
---      O_vout0_fifo_empty => open,
---      O_cmd => cmd,
---      O_cmd_en => cmd_en,
---      O_addr => addr,
---      O_wr_data => wr_data,
---      O_data_mask => data_mask,
---      I_rd_data_valid => rd_data_valid,
---      I_rd_data => rd_data,
---      I_init_calib => init_calib
---    );
---    red_D <= vout_data(15 downto 11) & "000";
---    green_D <= vout_data(10 downto 5) & "00";
---    blue_D <= vout_data(4 downto 0) & "000";
 
---    hardcoreM3: Gowin_EMPU_Top
---      port map (
---        sys_clk => clk,
---        gpio(0) => led,
---        gpio(1) => button,
---        gpio(15 downto 1) => gpio(15 downto 1),
---        uart0_rxd => uart0_rxd,
---        uart0_txd => uart0_txd,
---        reset_n => resetn
---      );
+    process(clk) -- Use the raw 27MHz crystal clock
+    begin
+        if rising_edge(clk) then
+            if pllvr_hyperram_lock = '0' then
+                por_cnt <= (others => '0');
+                por_resetn <= '0';
+            elsif por_cnt < x"FFFF" then -- Delay for ~2.4 milliseconds
+                por_cnt <= por_cnt + 1;
+                por_resetn <= '0';
+            else
+                por_resetn <= '1';
+            end if;
+        end if;
+    end process;
 
+   hyperramControllerInstance: HyperRAM_Memory_Interface_Top port map (
+      clk => clk,
+      memory_clk => clk_hyperram_in_temp,
+      pll_lock => pllvr_hyperram_lock,
+      rst_n => por_resetn,
+      O_hpram_ck => O_hpram_ck,
+      O_hpram_ck_n => O_hpram_ck_n,
+      IO_hpram_dq => IO_hpram_dq,
+      IO_hpram_rwds => IO_hpram_rwds,
+      O_hpram_cs_n => O_hpram_cs_n,
+      O_hpram_reset_n => O_hpram_reset_n,
+      wr_data => wr_data,
+      rd_data => rd_data,
+      rd_data_valid => rd_data_valid,
+      addr => addr,
+      cmd => cmd,
+      cmd_en => cmd_en,
+      init_calib => init_calib,
+      clk_out => clk_hyperram_out_buffered,
+      data_mask => "0000"
+    );
+
+  --    Framebuffer
+videoFramebuffer: Video_Frame_Buffer_Top port map (
+      I_rst_n            => por_resetn,         -- Use the 2.4ms delayed reset
+      I_dma_clk          => clk_hyperram_out_buffered,
+      I_wr_halt          => (others => '0'),
+      I_rd_halt          => (others => '0'),
+      
+      -- INPUT (Write Side - Running at 54MHz)
+      I_vin0_clk         => clk_hyperram_out_buffered, 
+      I_vin0_vs_n        => not C1_C0(1), 
+      I_vin0_de          => '1',                       -- Force write enabled
+      I_vin0_data        => x"07E0",                   -- Solid Green (RGB565)
+      O_vin0_fifo_full   => debug_fifo_full,
+
+      -- OUTPUT (Read Side - Running at 25.2MHz)
+      I_vout0_clk        => clk_pixel_buffered,
+      I_vout0_vs_n       => not C1_C0(1), 
+      I_vout0_de         => DE,             
+      O_vout0_den        => open,
+      O_vout0_data       => vout_data,
+      O_vout0_fifo_empty => debug_fifo_empty,
+      
+      -- DMA Interface
+      O_cmd              => cmd,
+      O_cmd_en           => cmd_en,
+      O_addr             => addr,
+      O_wr_data          => wr_data,
+      O_data_mask        => open,
+      I_rd_data_valid    => rd_data_valid,
+      I_rd_data          => rd_data,
+      I_init_calib       => init_calib           -- Wait for calibration here
+    );
+-- Map the Framebuffer RGB565 output back to the HDMI TMDS encoders
+    red_D   <= (others => rd_data_valid); 
+    green_D <= (others => init_calib);
+    blue_D  <= (others => '0');
   hardcoreM3: Gowin_EMPU_Top
     port map (
       sys_clk => clk,
@@ -427,9 +449,9 @@ end component;
     end process;
 
 
-    red_D <= red_sync_2;
-    green_D <= green_sync_2;
-    blue_D <= blue_sync_2;
+--    red_D <= red_sync_2;
+--    green_D <= green_sync_2;
+--    blue_D <= blue_sync_2;
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,

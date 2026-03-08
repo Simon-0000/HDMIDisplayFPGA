@@ -4,7 +4,7 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Sun Jan  4 18:40:29 2026
+--Created Time: Sat Mar  7 22:14:35 2026
 
 --Change the instance name and port connections to the signal names
 ----------Copy here to design--------
@@ -16,6 +16,7 @@ component HyperRAM_Memory_Interface_Top
 		pll_lock: in std_logic;
 		rst_n: in std_logic;
 		O_hpram_ck: out std_logic_vector(0 downto 0);
+		O_hpram_ck_n: out std_logic_vector(0 downto 0);
 		IO_hpram_dq: inout std_logic_vector(7 downto 0);
 		IO_hpram_rwds: inout std_logic_vector(0 downto 0);
 		O_hpram_cs_n: out std_logic_vector(0 downto 0);
@@ -39,6 +40,7 @@ your_instance_name: HyperRAM_Memory_Interface_Top
 		pll_lock => pll_lock,
 		rst_n => rst_n,
 		O_hpram_ck => O_hpram_ck,
+		O_hpram_ck_n => O_hpram_ck_n,
 		IO_hpram_dq => IO_hpram_dq,
 		IO_hpram_rwds => IO_hpram_rwds,
 		O_hpram_cs_n => O_hpram_cs_n,
