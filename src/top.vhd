@@ -305,26 +305,15 @@ end component;
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
---    bufg_clk_hyperram_in:BUFG
---      port map(
---      O=>clk_hyperram_in_buffered,
---      I=>clk_hyperram_in_temp
---     );
---    bufg_clk_hyperram_out:BUFG
---      port map(
---      O=>clk_hyperram_out_buffered,
---      I=>clk_hyperram_out_temp
---     );
 
 --    HYPERRAM
-
-    process(clk) -- Use the raw 27MHz crystal clock
+    process(clk)
     begin
         if rising_edge(clk) then
             if pllvr_hyperram_lock = '0' then
                 por_cnt <= (others => '0');
                 por_resetn <= '0';
-            elsif por_cnt < x"FFFF" then -- Delay for ~2.4 milliseconds
+            elsif por_cnt < x"FFFF" then
                 por_cnt <= por_cnt + 1;
                 por_resetn <= '0';
             else
@@ -355,29 +344,25 @@ end component;
       data_mask => "0000"
     );
 
-  --    Framebuffer
-videoFramebuffer: Video_Frame_Buffer_Top port map (
-      I_rst_n            => por_resetn,         -- Use the 2.4ms delayed reset
+  videoFramebuffer: Video_Frame_Buffer_Top port map (
+      I_rst_n            => por_resetn,
       I_dma_clk          => clk_hyperram_out_buffered,
       I_wr_halt          => (others => '0'),
       I_rd_halt          => (others => '0'),
       
-      -- INPUT (Write Side - Running at 54MHz)
-      I_vin0_clk         => clk_hyperram_out_buffered, 
+      I_vin0_clk         => clk_pixel_buffered, 
       I_vin0_vs_n        => not C1_C0(1), 
-      I_vin0_de          => '1',                       -- Force write enabled
-      I_vin0_data        => x"07E0",                   -- Solid Green (RGB565)
+      I_vin0_de          => DE, 
+      I_vin0_data        => vin_data, 
       O_vin0_fifo_full   => debug_fifo_full,
 
-      -- OUTPUT (Read Side - Running at 25.2MHz)
       I_vout0_clk        => clk_pixel_buffered,
       I_vout0_vs_n       => not C1_C0(1), 
-      I_vout0_de         => DE,             
+      I_vout0_de         => DE,
       O_vout0_den        => open,
       O_vout0_data       => vout_data,
       O_vout0_fifo_empty => debug_fifo_empty,
       
-      -- DMA Interface
       O_cmd              => cmd,
       O_cmd_en           => cmd_en,
       O_addr             => addr,
@@ -385,12 +370,11 @@ videoFramebuffer: Video_Frame_Buffer_Top port map (
       O_data_mask        => open,
       I_rd_data_valid    => rd_data_valid,
       I_rd_data          => rd_data,
-      I_init_calib       => init_calib           -- Wait for calibration here
+      I_init_calib       => init_calib
     );
--- Map the Framebuffer RGB565 output back to the HDMI TMDS encoders
-    red_D   <= (others => rd_data_valid); 
-    green_D <= (others => init_calib);
-    blue_D  <= (others => '0');
+    red_D   <= vout_data(15 downto 11) & "000";
+    green_D <= vout_data(10 downto 5) & "00";
+    blue_D  <= vout_data(4 downto 0) & "000";
   hardcoreM3: Gowin_EMPU_Top
     port map (
       sys_clk => clk,
@@ -448,10 +432,6 @@ videoFramebuffer: Video_Frame_Buffer_Top port map (
       end if;
     end process;
 
-
---    red_D <= red_sync_2;
---    green_D <= green_sync_2;
---    blue_D <= blue_sync_2;
     --TMDS encoders
     red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,
