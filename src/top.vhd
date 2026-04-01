@@ -187,8 +187,6 @@ library ieee;
       V_BITS : positive := 10
     );
     port(
-      clk : in std_logic;
-      reset : in std_logic;
       pos_x : in unsigned(H_BITS - 1 downto 0);
       pos_y : in unsigned(V_BITS - 1 downto 0);
       data_out: out std_logic_vector(15 downto 0)
@@ -260,7 +258,7 @@ library ieee;
   attribute syn_preserve of cmd_en_pipe : signal is true;
   signal por_resetn : std_logic := '0';
   signal por_cnt    : unsigned(15 downto 0) := (others => '0');
-
+  signal vout_den : std_logic;
   begin
     --Reset 
     reset <= not(resetn);
@@ -350,7 +348,7 @@ library ieee;
       I_vout0_clk        => clk_pixel_buffered,
       I_vout0_vs_n       => C1_C0(1), 
       I_vout0_de         => DE,
-      O_vout0_den        => open,
+      O_vout0_den        => vout_den,
       O_vout0_data       => vout_data,
       O_vout0_fifo_empty => debug_fifo_empty,
       O_cmd              => cmd,
@@ -438,8 +436,7 @@ library ieee;
       reset => reset,
       D => red_D,
       C1_C0 => "00",
--- [CHANGED LINE]
-      DE => DE,
+      DE => vout_den,
       q_out => red_q_out
     );
 
@@ -448,8 +445,7 @@ library ieee;
       reset => reset,
       D => green_D,
       C1_C0 => "00",
--- [CHANGED LINE]
-      DE => DE,
+      DE => vout_den,
       q_out => green_q_out
     );
 
@@ -458,8 +454,7 @@ library ieee;
       reset => reset,
       D => blue_D,
       C1_C0 => C1_C0,
--- [CHANGED LINE]
-      DE => DE,
+      DE => vout_den,
       q_out => blue_q_out
     );
 
@@ -491,8 +486,6 @@ library ieee;
     clk_pixel <= clk_pixel_buffered;
 
     testPattern : RGB565_Pattern_Generator port map(
-      clk => clk_pixel_buffered,
-      reset => reset,
       pos_x => pos_x,
       pos_y => pos_y,
       data_out => vin_data
