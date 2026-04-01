@@ -1,4 +1,4 @@
-  library ieee; 
+library ieee; 
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
@@ -21,8 +21,6 @@
       r: out std_logic;
       g: out std_logic;
       b: out std_logic;
---      led : inout std_logic;
---      button : inout std_logic;
       uart0_txd : out std_logic;
       uart0_rxd : in std_logic;
 
@@ -110,36 +108,27 @@
       I_init_calib: in std_logic
     );
   end component;
---  component Gowin_EMPU_Top
---    port (
---      sys_clk: in std_logic;
---      gpio: inout std_logic_vector(15 downto 0);
---      uart0_rxd: in std_logic;
---      uart0_txd: out std_logic;
---      reset_n: in std_logic
---    );
---  end component;
 
-component Gowin_EMPU_Top
-	port (
-		sys_clk: in std_logic;
-		uart0_rxd: in std_logic;
-		uart0_txd: out std_logic;
-		master_pclk: out std_logic;
-		master_prst: out std_logic;
-		master_penable: out std_logic;
-		master_paddr: out std_logic_vector(7 downto 0);
-		master_pwrite: out std_logic;
-		master_pwdata: out std_logic_vector(31 downto 0);
-		master_pstrb: out std_logic_vector(3 downto 0);
-		master_pprot: out std_logic_vector(2 downto 0);
-		master_psel1: out std_logic;
-		master_prdata1: in std_logic_vector(31 downto 0);
-		master_pready1: in std_logic;
-		master_pslverr1: in std_logic;
-		reset_n: in std_logic
-	);
-end component;
+  component Gowin_EMPU_Top
+    port (
+        sys_clk: in std_logic;
+        uart0_rxd: in std_logic;
+        uart0_txd: out std_logic;
+        master_pclk: out std_logic;
+        master_prst: out std_logic;
+        master_penable: out std_logic;
+        master_paddr: out std_logic_vector(7 downto 0);
+        master_pwrite: out std_logic;
+        master_pwdata: out std_logic_vector(31 downto 0);
+        master_pstrb: out std_logic_vector(3 downto 0);
+        master_pprot: out std_logic_vector(2 downto 0);
+        master_psel1: out std_logic;
+        master_prdata1: in std_logic_vector(31 downto 0);
+        master_pready1: in std_logic;
+        master_pslverr1: in std_logic;
+        reset_n: in std_logic
+    );
+  end component;
 
   component BUFG
    port(
@@ -147,6 +136,7 @@ end component;
      I:in std_logic
      );
   end component;
+  
   component TMDS_encoder
     port (
       clk : in std_logic;
@@ -167,6 +157,7 @@ end component;
       data_out : out std_logic
     );
   end component;
+  
   component VideoTimingGenerator is
     generic(
       H_BITS : positive := 10;
@@ -189,6 +180,7 @@ end component;
       C1_C0 : out std_logic_vector(1 downto 0)
     );
   end component;
+  
   component RGB565_Pattern_Generator is
     generic(
       H_BITS : positive := 10;
@@ -205,8 +197,6 @@ end component;
 
   signal reset : std_logic;
   signal pllvr_hyperram_lock : std_logic;
-
---  signal gpio : std_logic_vector(15 downto 0);
 
   signal clk_bit_temp : std_logic;
   signal clk_bit_buffered : std_logic;
@@ -270,11 +260,12 @@ end component;
   attribute syn_preserve of cmd_en_pipe : signal is true;
   signal por_resetn : std_logic := '0';
   signal por_cnt    : unsigned(15 downto 0) := (others => '0');
+
   begin
-    --Reset
+    --Reset 
     reset <= not(resetn);
 
-    --CLOCKS
+    --CLOCKS 
     pll_pixel_ddr: Pllvr_DDR_Pixel port map (
         clkout => clk_bit_temp,
         reset => reset,
@@ -295,18 +286,20 @@ end component;
         hclkin => clk_bit_buffered,
         resetn => resetn
     );
+    
     bufg_clk_bit:BUFG
       port map(
       O=>clk_bit_buffered,
       I=>clk_bit_temp
      );
+     
     bufg_clk_pixel:BUFG
       port map(
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
 
---    HYPERRAM
+--    HYPERRAM 
     process(clk)
     begin
         if rising_edge(clk) then
@@ -349,20 +342,17 @@ end component;
       I_dma_clk          => clk_hyperram_out_buffered,
       I_wr_halt          => (others => '0'),
       I_rd_halt          => (others => '0'),
-      
       I_vin0_clk         => clk_pixel_buffered, 
-      I_vin0_vs_n        => not C1_C0(1), 
+      I_vin0_vs_n        => C1_C0(1), 
       I_vin0_de          => DE, 
       I_vin0_data        => vin_data, 
       O_vin0_fifo_full   => debug_fifo_full,
-
       I_vout0_clk        => clk_pixel_buffered,
-      I_vout0_vs_n       => not C1_C0(1), 
+      I_vout0_vs_n       => C1_C0(1), 
       I_vout0_de         => DE,
       O_vout0_den        => open,
       O_vout0_data       => vout_data,
       O_vout0_fifo_empty => debug_fifo_empty,
-      
       O_cmd              => cmd,
       O_cmd_en           => cmd_en,
       O_addr             => addr,
@@ -375,6 +365,7 @@ end component;
     red_D   <= vout_data(15 downto 11) & "000";
     green_D <= vout_data(10 downto 5) & "00";
     blue_D  <= vout_data(4 downto 0) & "000";
+
   hardcoreM3: Gowin_EMPU_Top
     port map (
       sys_clk => clk,
@@ -394,6 +385,7 @@ end component;
       master_pslverr1 => master_pslverr1,
       reset_n => resetn
     );
+    
  process (master_pclk)
     begin
       if rising_edge(master_pclk) then
@@ -432,21 +424,31 @@ end component;
       end if;
     end process;
 
-    --TMDS encoders
-    red_TMDS : TMDS_encoder port map(
+    videoTiming : VideoTimingGenerator port map(
+      clk => clk_pixel_buffered,
+      reset => reset,
+      pos_x => pos_x,
+      pos_y => pos_y,
+      DE => DE,
+      C1_C0 => C1_C0
+    );
+
+  red_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,
       reset => reset,
       D => red_D,
       C1_C0 => "00",
+-- [CHANGED LINE]
       DE => DE,
       q_out => red_q_out
     );
-    
+
     green_TMDS : TMDS_encoder port map(
       clk => clk_pixel_buffered,
       reset => reset,
       D => green_D,
       C1_C0 => "00",
+-- [CHANGED LINE]
       DE => DE,
       q_out => green_q_out
     );
@@ -456,11 +458,11 @@ end component;
       reset => reset,
       D => blue_D,
       C1_C0 => C1_C0,
+-- [CHANGED LINE]
       DE => DE,
       q_out => blue_q_out
     );
 
-    --Serializers
     ser_red : Serializer
     port map (
       data_in => red_q_out,
@@ -488,16 +490,6 @@ end component;
 
     clk_pixel <= clk_pixel_buffered;
 
-    --VideoTimingGenerator
-    videoTiming : VideoTimingGenerator port map(
-      clk => clk_pixel_buffered,
-      reset => reset,
-      pos_x => pos_x,
-      pos_y => pos_y,
-      DE => DE,
-      C1_C0 => C1_C0
-    );
---    Test pattern
     testPattern : RGB565_Pattern_Generator port map(
       clk => clk_pixel_buffered,
       reset => reset,
@@ -507,4 +499,3 @@ end component;
     );
 
   end top_arch;
-
