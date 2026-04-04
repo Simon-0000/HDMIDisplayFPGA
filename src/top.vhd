@@ -224,10 +224,6 @@ library ieee;
   signal green_D : std_logic_vector(7 downto 0) := "11111111";
   signal blue_D : std_logic_vector(7 downto 0) := "11111111";
 
-  signal red_tmp_D, red_sync_1, red_sync_2     : std_logic_vector(7 downto 0)  := "11111111";
-  signal green_tmp_D, green_sync_1, green_sync_2 : std_logic_vector(7 downto 0)  := "11111111";
-  signal blue_tmp_D, blue_sync_1, blue_sync_2   : std_logic_vector(7 downto 0)  := "11111111";
-
   signal red_q_out : std_logic_vector(9 downto 0);
   signal green_q_out : std_logic_vector(9 downto 0);
   signal blue_q_out : std_logic_vector(9 downto 0);
@@ -247,7 +243,11 @@ library ieee;
   signal master_psel1: std_logic;
   signal master_prdata1: std_logic_vector(31 downto 0);
   signal master_pready1: std_logic;
-  signal master_pslverr1: std_logic;
+  signal master_pslverr1: std_logic := '0';
+  signal mcu_de : std_logic := '0';
+  signal mcu_vs_n : std_logic := '1';
+  signal mcu_vin_data : std_logic_vector(15 downto 0);
+
   signal debug_fifo_empty : std_logic;
   signal debug_fifo_full  : std_logic;
 
@@ -340,10 +340,10 @@ library ieee;
       I_dma_clk          => clk_hyperram_out_buffered,
       I_wr_halt          => (others => '0'),
       I_rd_halt          => (others => '0'),
-      I_vin0_clk         => clk_pixel_buffered, 
-      I_vin0_vs_n        => C1_C0(1), 
-      I_vin0_de          => DE, 
-      I_vin0_data        => vin_data, 
+      I_vin0_clk         => master_pclk, 
+      I_vin0_vs_n        => mcu_vs_n, 
+      I_vin0_de          => mcu_de, 
+      I_vin0_data        => mcu_vin_data, 
       O_vin0_fifo_full   => debug_fifo_full,
       I_vout0_clk        => clk_pixel_buffered,
       I_vout0_vs_n       => C1_C0(1), 
@@ -366,7 +366,7 @@ library ieee;
 
   hardcoreM3: Gowin_EMPU_Top
     port map (
-      sys_clk => clk,
+      sys_clk => clk_hyperram_out_buffered,
       uart0_rxd => uart0_rxd,
       uart0_txd => uart0_txd,
       master_pclk => master_pclk,
@@ -389,36 +389,25 @@ library ieee;
       if rising_edge(master_pclk) then
         if master_prst = '0' then
           master_pready1 <= '0';
-          master_pslverr1 <= '0';
-
-          red_tmp_D   <= (others => '1');
-          green_tmp_D <= (others => '1');
-          blue_tmp_D  <= (others => '1');
+          mcu_vin_data <= (others=>'0');
+          mcu_vs_n <= '1';
+          mcu_de <= '0';
         else
-          master_pready1 <= '1'; 
-          master_pslverr1 <= '0';
-          if master_psel1 = '1' and master_penable = '1' then
-            if master_pwrite = '1' then
-              red_tmp_D   <= master_pwdata(23 downto 16);
-              green_tmp_D <= master_pwdata(15 downto 8);
-              blue_tmp_D  <= master_pwdata(7 downto 0);
+          master_pready1 <= not debug_fifo_full; 
+          if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
+            if master_paddr(7 downto 0) = "00000000" then
+              mcu_vin_data <= master_pwdata(23 downto 19) & master_pwdata(15 downto 10) & master_pwdata(7 downto 3);
+              mcu_vs_n <= '1';
+              mcu_de <= '1';
+            else
+              mcu_vs_n <= '0';
+              mcu_de <= '0';
             end if;
+          else
+            mcu_vs_n <= '1';
+            mcu_de <= '0';
           end if;
         end if;
-      end if;
-    end process;
-
-    process (clk_pixel_buffered)
-    begin
-      if rising_edge(clk_pixel_buffered) then
-        red_sync_1   <= red_tmp_D;
-        red_sync_2   <= red_sync_1;
-        
-        green_sync_1 <= green_tmp_D;
-        green_sync_2 <= green_sync_1;
-        
-        blue_sync_1  <= blue_tmp_D;
-        blue_sync_2  <= blue_sync_1;
       end if;
     end process;
 

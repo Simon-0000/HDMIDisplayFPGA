@@ -44,20 +44,25 @@ int main(void)
 	}
 }
 
+static void setScreenColor(const uint32_t rgb_value)
+{
+	*((volatile uint32_t*)(APB2_MASTER_1_BASE + 0x04)) = 0;
+
+	for (uint32_t i = 0; i < (640 * 480); i++)
+	{
+		*((volatile uint32_t*)(APB2_MASTER_1_BASE + 0x00)) = (uint32_t)rgb_value;
+	}
+}
 
 static void setColor(const char* rgb_hex_buffer)
 {
 	char *endptr;
 	long rgb_value = strtol(rgb_hex_buffer, &endptr, 16);
+	setScreenColor(rgb_value);
 
-	char hex_str[16];
-	rt_snprintf(hex_str, sizeof(hex_str), "0x%06X\r\n", (unsigned int)rgb_value);
-	rt_kprintf("\r\n setColor=");
-	rt_kprintf(hex_str);
-	*((volatile uint32_t*)APB2_MASTER_1_BASE) = (uint32_t)rgb_value;
 }
 
-void setColor_cmd(int argc, char **argv)
+void setColorCmd(int argc, char **argv)
 {
     if (argc < 2)
         rt_kprintf("Usage: setColor <RRGGBB>\n");
@@ -68,4 +73,22 @@ void setColor_cmd(int argc, char **argv)
     	setColor(argv[1]);
 }
 
-MSH_CMD_EXPORT_ALIAS(setColor_cmd, setColor, Set RGB color RRGGBB);
+void setAnimationCmd(int argc, char **argv)
+{
+	for (int i = 0; i < 255; i++) {
+		setScreenColor(((255 - i) << 16) | (i << 8) | 0);
+	}
+
+	for (int i = 0; i < 255; i++) {
+		setScreenColor(0 | ((255 - i) << 8) | i);
+	}
+
+	for (int i = 0; i < 255; i++) {
+		setScreenColor((i << 16) | 0 | (255 - i));
+	}
+}
+
+MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
+
+MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
+MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);
