@@ -8,11 +8,15 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+
+#include <cstdlib>
+#include <cstring>
+extern "C" {
 #include <rtthread.h>
 #include <stdio.h>
 #include "gw1ns4c.h"
 #include "uart.h"
-
+}
 #define APB2_MASTER_1_BASE 0x40002400
 #define SET_COLOR_CMD "setColor"
 
