@@ -7,10 +7,11 @@ extern "C" {
 
 static void processThread(void*);
 
+
 class Game
 {
 public:
-	Game();
+	Game(char *name);
 	virtual ~Game() = default;
 	void start();
 	void stop();
@@ -20,9 +21,13 @@ protected:
 private:
 	friend void processThread(void*);
 	void processInputs();
-	static constexpr size_t STACK_SIZE = 256;
+	static constexpr rt_uint8_t THREAD_PRIORITY = 3;
+	static constexpr size_t STACK_SIZE = 1024;
+	char *name_;
 	uint32_t gamePeriod;
 	struct rt_thread thread_;
 	rt_dev_t console_;
+
+	__attribute__((aligned(8)))
 	uint8_t stack_[STACK_SIZE];
 };

@@ -23,8 +23,6 @@ extern "C" {
 #define APB2_MASTER_1_BASE 0x40002400
 #define SET_COLOR_CMD "setColor"
 
-Pong game;
-
 
 static void setColor(const char* rgb_hex_buffer);
 static int handle_uart_command(const char* buffer, uint8_t size);
@@ -33,18 +31,17 @@ static void UART0_Handler(void);
 
 extern "C" int main(void)
 {
-	SystemInit();      //Initializes system clock
-	uart_init(UART0,   //Initializes UART0
-	          9600,   //Baudrate
-	          1,       //Tx
-	          1,       //Rx
-	          0,       //Tx interrupt
-	          1,       //Rx interrupt
-	          0,       //Tx overflow interrupt
-	          0);      //Rx overflow interrupt
+	SystemInit();
+	uart_init(UART0,
+	          9600,
+	          1,
+	          1,
+	          0,
+	          1,
+	          0,
+	          0);
 
     rt_kprintf("hello :)\n");
-
 	while(1)
 	{
 		rt_thread_mdelay(10000);
@@ -93,10 +90,12 @@ void setAnimationCmd(int argc, char **argv)
 	for (int i = 0; i < 255; i++) {
 		setScreenColor((i << 16) | 0 | (255 - i));
 	}
-}
+
+}
 void pong(int argc, char **argv)
 {
-	game.start();
+    static Pong game("PongGame");
+    game.start();
 }
 
 MSH_CMD_EXPORT(pong, Start pongGame);
