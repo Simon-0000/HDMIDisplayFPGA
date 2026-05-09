@@ -9,9 +9,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+
+//#include "PongGame.hpp"
+
+extern "C" {
 #include <cstdlib>
 #include <cstring>
-extern "C" {
 #include <rtthread.h>
 #include <stdio.h>
 #include "gw1ns4c.h"
@@ -20,7 +23,7 @@ extern "C" {
 #define APB2_MASTER_1_BASE 0x40002400
 #define SET_COLOR_CMD "setColor"
 
-
+//Pong game;
 
 
 static void setColor(const char* rgb_hex_buffer);
@@ -28,7 +31,7 @@ static int handle_uart_command(const char* buffer, uint8_t size);
 static void UART0_Handler(void);
 
 
-int main(void)
+extern "C" int main(void)
 {
 	SystemInit();      //Initializes system clock
 	uart_init(UART0,   //Initializes UART0
@@ -40,11 +43,10 @@ int main(void)
 	          0,       //Tx overflow interrupt
 	          0);      //Rx overflow interrupt
 
-    rt_kprintf("hello :)\n");
 
 	while(1)
 	{
-		rt_thread_mdelay(10000);
+	    rt_kprintf("hello :)\n");
 	}
 }
 
@@ -91,8 +93,12 @@ void setAnimationCmd(int argc, char **argv)
 		setScreenColor((i << 16) | 0 | (255 - i));
 	}
 }
-
-MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
-
-MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
-MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);
+//void pong(int argc, char **argv)
+//{
+//	game.start();
+//}
+//
+//MSH_CMD_EXPORT(pong, Start pongGame);
+//MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
+//MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
+//MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);
