@@ -11,7 +11,7 @@
 
 
 //#include "PongGame.hpp"
-
+#include "PongGame.hpp"
 extern "C" {
 #include <cstdlib>
 #include <cstring>
@@ -23,7 +23,7 @@ extern "C" {
 #define APB2_MASTER_1_BASE 0x40002400
 #define SET_COLOR_CMD "setColor"
 
-//Pong game;
+Pong game;
 
 
 static void setColor(const char* rgb_hex_buffer);
@@ -43,10 +43,11 @@ extern "C" int main(void)
 	          0,       //Tx overflow interrupt
 	          0);      //Rx overflow interrupt
 
+    rt_kprintf("hello :)\n");
 
 	while(1)
 	{
-	    rt_kprintf("hello :)\n");
+		rt_thread_mdelay(10000);
 	}
 }
 
@@ -93,12 +94,12 @@ void setAnimationCmd(int argc, char **argv)
 		setScreenColor((i << 16) | 0 | (255 - i));
 	}
 }
-//void pong(int argc, char **argv)
-//{
-//	game.start();
-//}
-//
-//MSH_CMD_EXPORT(pong, Start pongGame);
-//MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
-//MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
-//MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);
+void pong(int argc, char **argv)
+{
+	game.start();
+}
+
+MSH_CMD_EXPORT(pong, Start pongGame);
+MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
+MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
+MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);
