@@ -26,46 +26,58 @@ void Game::start()
 
 void Game::stop()
 {
-	rt_thread_t shellThread = rt_thread_find(FINSH_THREAD_NAME);
-	if (shellThread != RT_NULL)//TODO check if the thread was already started before doing that
-	{
-		rt_thread_resume(shellThread);
-		rt_schedule();
-	}
 
-	rt_thread_t gameThread = rt_thread_find(name_);
-	if (gameThread != RT_NULL) //TODO check if the thread was already stopped before doing that
-		rt_thread_control(gameThread, RT_THREAD_CTRL_CLOSE, RT_NULL);
+	isRunning_ = false;
 }
 
 void Game::processInputs()
 {
+	while (UART_GetRxBufferFull(UART0) != SET)
+	{
+		rt_thread_mdelay(5);
+		if (!isRunning_) return;
+	}
+
+	char key = UART_ReceiveChar(UART0);
+	UART_ClearRxIRQ(UART0);
+
+	if (key == 'w') {
+		rt_kprintf("UP\r\n");
+	}
+	else if (key == 's') {
+		rt_kprintf("DOWN\r\n");
+	}
+	else if (key == 'q') {
+		stop();
+	}
 }
 
 static void processThread(void* param)
 {
-	rt_kprintf("Game thread started, disabling shell");
-	for(int i = 0; i < 3; i++)
-	{
-		rt_kprintf(".");
-		rt_thread_mdelay(500);
-	}
-
 	rt_thread_t shellThread = rt_thread_find(FINSH_THREAD_NAME);
 	if (shellThread != RT_NULL)
 	{
 		rt_thread_suspend(shellThread);
 	}
 
+
 	rt_kprintf("\e[?25l\e[1;1H\e[2J");
 	rt_kprintf("---------GAME (press q to quit)---------");
 	Game* game = reinterpret_cast<Game*>(param);
-	while(true)
+	game->isRunning_ = true;
+	while(game->isRunning_)
 	{
+		rt_kprintf(".");
 		game->processInputs();
-		rt_thread_mdelay(100);
+		rt_thread_mdelay(25);
 	}
-	game->stop();
+
+	rt_kprintf("\e[?25h\e[1;1H\e[2J");
+	if (shellThread != RT_NULL)
+	{
+		rt_thread_resume(shellThread);
+        rt_schedule();
+	}
 }
 
 

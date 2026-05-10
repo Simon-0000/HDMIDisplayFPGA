@@ -26,7 +26,8 @@ extern "C" {
 
 static void setColor(const char* rgb_hex_buffer);
 static int handle_uart_command(const char* buffer, uint8_t size);
-static void UART0_Handler(void);
+static void clear(int argc, char **argv);
+static void pong(int argc, char **argv);
 
 
 extern "C" int main(void)
@@ -40,7 +41,7 @@ extern "C" int main(void)
 	          1,
 	          0,
 	          0);
-
+	clear(0,0);
     rt_kprintf("hello :)\n");
 	while(1)
 	{
@@ -98,7 +99,13 @@ void pong(int argc, char **argv)
     game.start();
 }
 
+void clear(int argc, char **argv)
+{
+	rt_kprintf("\e[1;1H\e[2J");
+}
+
 MSH_CMD_EXPORT(pong, Start pongGame);
+MSH_CMD_EXPORT(clear, Clear terminal);
 MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
 MSH_CMD_EXPORT_ALIAS(setColorCmd, setColor, Set RGB color RRGGBB);
 MSH_CMD_EXPORT_ALIAS(setAnimationCmd, setAnimation, Start an rgb animation until you recall the function);

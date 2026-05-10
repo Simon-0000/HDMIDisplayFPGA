@@ -23,6 +23,8 @@ private:
 	void processInputs();
 	static constexpr rt_uint8_t THREAD_PRIORITY = 3;
 	static constexpr size_t STACK_SIZE = 1024;
+
+	bool isRunning_;
 	char *name_;
 	uint32_t gamePeriod;
 	struct rt_thread thread_;
