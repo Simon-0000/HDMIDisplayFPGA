@@ -85,8 +85,6 @@ library ieee;
     port (
       I_rst_n: in std_logic;
       I_dma_clk: in std_logic;
-      I_wr_halt: in std_logic_vector(0 downto 0);
-      I_rd_halt: in std_logic_vector(0 downto 0);
       I_vin0_clk: in std_logic;
       I_vin0_vs_n: in std_logic;
       I_vin0_de: in std_logic;
@@ -338,8 +336,6 @@ library ieee;
   videoFramebuffer: Video_Frame_Buffer_Top port map (
       I_rst_n            => por_resetn,
       I_dma_clk          => clk_hyperram_out_buffered,
-      I_wr_halt          => (others => '0'),
-      I_rd_halt          => (others => '0'),
       I_vin0_clk         => master_pclk, 
       I_vin0_vs_n        => mcu_vs_n, 
       I_vin0_de          => mcu_de, 

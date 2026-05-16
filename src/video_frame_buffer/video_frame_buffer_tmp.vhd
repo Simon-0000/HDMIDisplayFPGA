@@ -4,7 +4,7 @@
 --Tool Version: V1.9.11.03 Education
 --Part Number: GW1NSR-LV4CQN48PC6/I5
 --Device: GW1NSR-4C
---Created Time: Sat Mar  7 23:09:36 2026
+--Created Time: Sat May 16 09:35:36 2026
 
 --Change the instance name and port connections to the signal names
 ----------Copy here to design--------
@@ -13,8 +13,6 @@ component Video_Frame_Buffer_Top
 	port (
 		I_rst_n: in std_logic;
 		I_dma_clk: in std_logic;
-		I_wr_halt: in std_logic_vector(0 downto 0);
-		I_rd_halt: in std_logic_vector(0 downto 0);
 		I_vin0_clk: in std_logic;
 		I_vin0_vs_n: in std_logic;
 		I_vin0_de: in std_logic;
@@ -41,8 +39,6 @@ your_instance_name: Video_Frame_Buffer_Top
 	port map (
 		I_rst_n => I_rst_n,
 		I_dma_clk => I_dma_clk,
-		I_wr_halt => I_wr_halt,
-		I_rd_halt => I_rd_halt,
 		I_vin0_clk => I_vin0_clk,
 		I_vin0_vs_n => I_vin0_vs_n,
 		I_vin0_de => I_vin0_de,
