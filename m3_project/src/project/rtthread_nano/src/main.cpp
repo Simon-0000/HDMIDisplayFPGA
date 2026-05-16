@@ -11,7 +11,7 @@
 
 
 //#include "PongGame.hpp"
-#include "PongGame.hpp"
+#include "Pong.hpp"
 extern "C" {
 #include <cstdlib>
 #include <cstring>
@@ -20,8 +20,6 @@ extern "C" {
 #include "gw1ns4c.h"
 #include "uart.h"
 }
-#define APB2_MASTER_1_BASE 0x40002400
-#define SET_COLOR_CMD "setColor"
 
 
 static void setColor(const char* rgb_hex_buffer);
@@ -51,11 +49,11 @@ extern "C" int main(void)
 
 static void setScreenColor(const uint32_t rgb_value)
 {
-	*((volatile uint32_t*)(APB2_MASTER_1_BASE + 0x04)) = 0;
+	*((volatile uint32_t*)(APB2MASTER1_BASE + 0x04)) = 0;
 
 	for (uint32_t i = 0; i < (640 * 480); i++)
 	{
-		*((volatile uint32_t*)(APB2_MASTER_1_BASE + 0x00)) = (uint32_t)rgb_value;
+		*((volatile uint32_t*)(APB2MASTER1_BASE + 0x00)) = (uint32_t)rgb_value;
 	}
 }
 

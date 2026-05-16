@@ -4,9 +4,8 @@ extern "C" {
 #include <stdint.h>
 #include "uart.h"
 }
-
+#include <Functional>
 static void processThread(void*);
-
 
 class Game
 {
@@ -16,8 +15,9 @@ public:
 	void start();
 	void stop();
 protected:
+	virtual void processGameInput(char) = 0;
 	virtual void processGameFrame() = 0;
-
+//	MappedArray<char, void(*)(void*), 10> inputToHandler_;
 private:
 	friend void processThread(void*);
 	void processInputs();
@@ -25,6 +25,7 @@ private:
 	static constexpr size_t STACK_SIZE = 1024;
 
 	bool isRunning_;
+
 	char *name_;
 	uint32_t gamePeriod;
 	struct rt_thread thread_;
