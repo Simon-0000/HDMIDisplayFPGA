@@ -206,7 +206,6 @@ library ieee;
   attribute syn_keep of clk_pixel_buffered : signal is true;
   attribute syn_keep of clk_pixel_temp : signal is true;
 
-  signal vin_data : std_logic_vector(15 downto 0);
   signal wr_data : std_logic_vector(31 downto 0);
   signal rd_data : std_logic_vector(31 downto 0);
   signal rd_data_valid : std_logic;
@@ -242,12 +241,8 @@ library ieee;
   signal master_prdata1: std_logic_vector(31 downto 0);
   signal master_pready1: std_logic;
   signal master_pslverr1: std_logic := '0';
-  signal mcu_de : std_logic := '0';
-  signal mcu_vs_n : std_logic := '1';
-  signal mcu_vin_data : std_logic_vector(15 downto 0);
 
   signal debug_fifo_empty : std_logic;
-  signal debug_fifo_full  : std_logic;
 
   signal cmd_en_pipe : std_logic;
   signal addr_pipe   : std_logic_vector(21 downto 0);
@@ -336,11 +331,11 @@ library ieee;
   videoFramebuffer: Video_Frame_Buffer_Top port map (
       I_rst_n            => por_resetn,
       I_dma_clk          => clk_hyperram_out_buffered,
-      I_vin0_clk         => master_pclk, 
-      I_vin0_vs_n        => mcu_vs_n, 
-      I_vin0_de          => mcu_de, 
-      I_vin0_data        => mcu_vin_data, 
-      O_vin0_fifo_full   => debug_fifo_full,
+      I_vin0_clk         => '0', 
+      I_vin0_vs_n        => '1', 
+      I_vin0_de          => '0', 
+      I_vin0_data        => (others => '0'), 
+      O_vin0_fifo_full   => open,
       I_vout0_clk        => clk_pixel_buffered,
       I_vout0_vs_n       => C1_C0(1), 
       I_vout0_de         => DE,
@@ -380,32 +375,25 @@ library ieee;
       reset_n => resetn
     );
     
- process (master_pclk)
-    begin
-      if rising_edge(master_pclk) then
-        if master_prst = '0' then
-          master_pready1 <= '0';
-          mcu_vin_data <= (others=>'0');
-          mcu_vs_n <= '1';
-          mcu_de <= '0';
-        else
-          master_pready1 <= not debug_fifo_full; 
-          if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
-            if master_paddr(7 downto 0) = "00000000" then
-              mcu_vin_data <= master_pwdata(23 downto 19) & master_pwdata(15 downto 10) & master_pwdata(7 downto 3);
-              mcu_vs_n <= '1';
-              mcu_de <= '1';
-            else
-              mcu_vs_n <= '0';
-              mcu_de <= '0';
-            end if;
-          else
-            mcu_vs_n <= '1';
-            mcu_de <= '0';
-          end if;
-        end if;
-      end if;
-    end process;
+-- process (master_pclk)
+--    begin
+--      if rising_edge(master_pclk) then
+--        if master_prst = '0' then
+--          master_pready1 <= '0';
+--        else
+--          master_pready1 <= '0'; 
+--          if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
+--            if master_paddr(7 downto 0) = "00000000" then
+--             
+--            else
+
+--            end if;
+--          else
+
+--          end if;
+--        end if;
+--      end if;
+--    end process;
 
     videoTiming : VideoTimingGenerator port map(
       clk => clk_pixel_buffered,
@@ -470,10 +458,10 @@ library ieee;
 
     clk_pixel <= clk_pixel_buffered;
 
-    testPattern : RGB565_Pattern_Generator port map(
-      pos_x => pos_x,
-      pos_y => pos_y,
-      data_out => vin_data
-    );
+--    testPattern : RGB565_Pattern_Generator port map(
+--      pos_x => pos_x,
+--      pos_y => pos_y,
+--      data_out => vin_data
+--    );
 
   end top_arch;
