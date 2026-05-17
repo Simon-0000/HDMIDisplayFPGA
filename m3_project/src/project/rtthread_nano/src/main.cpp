@@ -49,11 +49,31 @@ extern "C" int main(void)
 
 static void setScreenColor(const uint32_t rgb_value)
 {
-	*((volatile uint32_t*)(APB2MASTER1_BASE + 0x04)) = 0;
+	uint32_t current_block = 0;
+	uint32_t pair_counter = 0;
 
-	for (uint32_t i = 0; i < (640 * 480); i++)
+	uint16_t r = (uint16_t)((rgb_value >> 16) & 0xFF) >> 3;
+	uint16_t g = (uint16_t)((rgb_value >> 8) & 0xFF) >> 2;
+	uint16_t b = (uint16_t)((rgb_value) & 0xFF) >> 3;
+
+	uint16_t rgb565_color = (r << 11) | (g << 5) | b;
+
+	uint32_t pixel_pair = ((uint32_t)rgb565_color << 16) | rgb565_color;
+
+	*((volatile uint32_t*)(APB2MASTER1_BASE + 0x04)) = current_block;
+
+	for (uint32_t i = 0; i < ((640 * 480) / 2); i++)
 	{
-		*((volatile uint32_t*)(APB2MASTER1_BASE + 0x00)) = (uint32_t)rgb_value;
+		*((volatile uint32_t*)(APB2MASTER1_BASE + 0x00)) = pixel_pair;
+
+		pair_counter++;
+
+		if (pair_counter == 128)
+		{
+			pair_counter = 0;
+			current_block++;
+			*((volatile uint32_t*)(APB2MASTER1_BASE + 0x04)) = current_block;
+		}
 	}
 }
 

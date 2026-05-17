@@ -128,6 +128,38 @@ library ieee;
     );
   end component;
 
+  component PixelArbiter
+    generic(
+      APB_PIXEL_VALUE_ADDR: std_logic_vector(7 downto 0) := x"00";
+      APB_PIXEL_INDEX_ADDR: std_logic_vector(7 downto 0) := x"04";
+      H_ACTIVE: positive := 640;
+      V_ACTIVE: positive := 480;
+      BLOCK_SIZE: positive := 16
+    );
+    port (
+      apb_master_clk: in std_logic;
+      apb_master_prst: in std_logic;
+      apb_master_penable: in std_logic;
+      apb_master_pwrite: in std_logic;
+      apb_master_paddr: in std_logic_vector(7 downto 0);
+      apb_master_pwdata: in std_logic_vector(31 downto 0);
+      apb_master_pselX: in std_logic;
+      apb_master_preadyX: out std_logic;
+
+      hyperram_wr_data: out std_logic_vector(31 downto 0);
+      hyperram_addr: out std_logic_vector(21 downto 0);
+      hyperram_cmd: out std_logic;
+      hyperram_cmd_en: out std_logic;
+      hyperram_data_mask: out std_logic_vector(3 downto 0);
+
+      framebuffer_cmd: in std_logic;
+      framebuffer_cmd_en: in std_logic;
+      framebuffer_addr: in std_logic_vector(21 downto 0);
+      framebuffer_wr_data: in std_logic_vector(31 downto 0);
+      framebuffer_data_mask: in std_logic_vector(3 downto 0)
+    );
+  end component;
+
   component BUFG
    port(
      O:out std_logic;
@@ -146,7 +178,7 @@ library ieee;
     );
   end component;
 
-  component Serializer is 
+  component Serializer 
     port(
       data_in : in std_logic_vector(9 downto 0);
       f_clk : in std_logic;
@@ -179,7 +211,7 @@ library ieee;
     );
   end component;
   
-  component RGB565_Pattern_Generator is
+  component RGB565_Pattern_Generator
     generic(
       H_BITS : positive := 10;
       V_BITS : positive := 10
@@ -206,15 +238,24 @@ library ieee;
   attribute syn_keep of clk_pixel_buffered : signal is true;
   attribute syn_keep of clk_pixel_temp : signal is true;
 
-  signal wr_data : std_logic_vector(31 downto 0);
+  --Hyperram control
+  signal arbiter_wr_data : std_logic_vector(31 downto 0);
+  signal arbiter_addr : std_logic_vector(21 downto 0);
+  signal arbiter_cmd : std_logic;
+  signal arbiter_cmd_en : std_logic;
+  signal arbiter_data_mask : std_logic_vector(3 downto 0);
+
+  signal framebuffer_wr_data : std_logic_vector(31 downto 0);
+  signal framebuffer_addr : std_logic_vector(21 downto 0);
+  signal framebuffer_cmd : std_logic;
+  signal framebuffer_cmd_en : std_logic;
+  signal framebuffer_data_mask : std_logic_vector(3 downto 0);
+
   signal rd_data : std_logic_vector(31 downto 0);
   signal rd_data_valid : std_logic;
-  signal addr : std_logic_vector(21 downto 0);
-  signal cmd : std_logic;
-  signal cmd_en : std_logic;
   signal init_calib : std_logic;
-  signal clk_out : std_logic;
-  signal data_mask : std_logic_vector(3 downto 0);
+
+  --
   signal vout_data: std_logic_vector(15 downto 0) := "1111111111111111";
 
   signal red_D : std_logic_vector(7 downto 0) := "11111111";
@@ -317,15 +358,15 @@ library ieee;
       IO_hpram_rwds => IO_hpram_rwds,
       O_hpram_cs_n => O_hpram_cs_n,
       O_hpram_reset_n => O_hpram_reset_n,
-      wr_data => wr_data,
+      wr_data => arbiter_wr_data,
       rd_data => rd_data,
       rd_data_valid => rd_data_valid,
-      addr => addr,
-      cmd => cmd,
-      cmd_en => cmd_en,
+      addr => arbiter_addr,
+      cmd => arbiter_cmd,
+      cmd_en => arbiter_cmd_en,
       init_calib => init_calib,
       clk_out => clk_hyperram_out_buffered,
-      data_mask => "0000"
+      data_mask => arbiter_data_mask
     );
 
   videoFramebuffer: Video_Frame_Buffer_Top port map (
@@ -342,11 +383,11 @@ library ieee;
       O_vout0_den        => vout_den,
       O_vout0_data       => vout_data,
       O_vout0_fifo_empty => debug_fifo_empty,
-      O_cmd              => cmd,
-      O_cmd_en           => cmd_en,
-      O_addr             => addr,
-      O_wr_data          => wr_data,
-      O_data_mask        => open,
+      O_cmd              => framebuffer_cmd,
+      O_cmd_en           => framebuffer_cmd_en,
+      O_addr             => framebuffer_addr,
+      O_wr_data          => framebuffer_wr_data,
+      O_data_mask        => framebuffer_data_mask,
       I_rd_data_valid    => rd_data_valid,
       I_rd_data          => rd_data,
       I_init_calib       => init_calib
@@ -374,26 +415,30 @@ library ieee;
       master_pslverr1 => master_pslverr1,
       reset_n => resetn
     );
-    
--- process (master_pclk)
---    begin
---      if rising_edge(master_pclk) then
---        if master_prst = '0' then
---          master_pready1 <= '0';
---        else
---          master_pready1 <= '0'; 
---          if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
---            if master_paddr(7 downto 0) = "00000000" then
---             
---            else
+  pixel_Arbiter: PixelArbiter
+    port map(
+      apb_master_clk => master_pclk,
+      apb_master_prst => master_prst,
+      apb_master_penable => master_penable,
+      apb_master_pwrite => master_pwrite,
+      apb_master_paddr => master_paddr,
+      apb_master_pwdata => master_pwdata,
+      apb_master_pselX => master_psel1,
+      apb_master_preadyX => master_pready1,
 
---            end if;
---          else
+      hyperram_wr_data => arbiter_wr_data,
+      hyperram_addr => arbiter_addr,
+      hyperram_cmd => arbiter_cmd,
+      hyperram_cmd_en => arbiter_cmd_en,
+      hyperram_data_mask => arbiter_data_mask,
 
---          end if;
---        end if;
---      end if;
---    end process;
+      framebuffer_cmd => framebuffer_cmd,
+      framebuffer_cmd_en => framebuffer_cmd_en,
+      framebuffer_addr => framebuffer_addr,
+      framebuffer_wr_data => framebuffer_wr_data,
+      framebuffer_data_mask => framebuffer_data_mask 
+    );
+
 
     videoTiming : VideoTimingGenerator port map(
       clk => clk_pixel_buffered,
