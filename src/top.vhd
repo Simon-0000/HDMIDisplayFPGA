@@ -128,35 +128,39 @@ library ieee;
     );
   end component;
 
-  component PixelArbiter
+  component BlockFramebuffer is
     generic(
-      APB_PIXEL_VALUE_ADDR: std_logic_vector(7 downto 0) := x"00";
-      APB_PIXEL_INDEX_ADDR: std_logic_vector(7 downto 0) := x"04";
-      H_ACTIVE: positive := 640;
-      V_ACTIVE: positive := 480;
-      BLOCK_SIZE: positive := 16
+      FIFO_INPUT_SIZE: positive := 512;
+      FIFO_OUTPUT_SIZE: positive := 512;
+      BLOCK_SIZE: positive := 16;
+      H_ACTIVE : positive := 640;
+      V_ACTIVE : positive := 480
     );
+
     port (
-      apb_master_clk: in std_logic;
-      apb_master_prst: in std_logic;
-      apb_master_penable: in std_logic;
-      apb_master_pwrite: in std_logic;
-      apb_master_paddr: in std_logic_vector(7 downto 0);
-      apb_master_pwdata: in std_logic_vector(31 downto 0);
-      apb_master_pselX: in std_logic;
-      apb_master_preadyX: out std_logic;
+      I_dma_clk: in std_logic;
+      I_rst: in std_logic;
+      O_cmd: out std_logic;
+      O_cmd_en: out std_logic;
+      O_addr: out std_logic_vector(21 downto 0);
+      O_wr_data: out std_logic_vector(31 downto 0);
+      O_data_mask: out std_logic_vector(3 downto 0);
+      I_rd_data_valid: in std_logic;
+      I_rd_data: in std_logic_vector(31 downto 0);
+      I_init_calib: in std_logic;
 
-      hyperram_wr_data: out std_logic_vector(31 downto 0);
-      hyperram_addr: out std_logic_vector(21 downto 0);
-      hyperram_cmd: out std_logic;
-      hyperram_cmd_en: out std_logic;
-      hyperram_data_mask: out std_logic_vector(3 downto 0);
 
-      framebuffer_cmd: in std_logic;
-      framebuffer_cmd_en: in std_logic;
-      framebuffer_addr: in std_logic_vector(21 downto 0);
-      framebuffer_wr_data: in std_logic_vector(31 downto 0);
-      framebuffer_data_mask: in std_logic_vector(3 downto 0)
+      I_vin_clk: in std_logic;
+      I_vin_wr_enable: in std_logic; 
+      I_vin_data: in std_logic_vector(31 downto 0);
+
+      I_vout_clk: in std_logic;
+      I_vout_vs_hs: in std_logic_vector(1 downto 0);
+      I_vout_de: in std_logic;
+      O_vout_vs_hs: out std_logic_vector(1 downto 0);
+      O_vout_de: out std_logic;
+      O_vout_data: out std_logic_vector(15 downto 0);
+      O_vout_fifo_empty: out std_logic
     );
   end component;
 
@@ -369,29 +373,32 @@ library ieee;
       data_mask => arbiter_data_mask
     );
 
-  videoFramebuffer: Video_Frame_Buffer_Top port map (
-      I_rst_n            => por_resetn,
-      I_dma_clk          => clk_hyperram_out_buffered,
-      I_vin0_clk         => '0', 
-      I_vin0_vs_n        => '1', 
-      I_vin0_de          => '0', 
-      I_vin0_data        => (others => '0'), 
-      O_vin0_fifo_full   => open,
-      I_vout0_clk        => clk_pixel_buffered,
-      I_vout0_vs_n       => C1_C0(1), 
-      I_vout0_de         => DE,
-      O_vout0_den        => vout_den,
-      O_vout0_data       => vout_data,
-      O_vout0_fifo_empty => debug_fifo_empty,
-      O_cmd              => framebuffer_cmd,
-      O_cmd_en           => framebuffer_cmd_en,
-      O_addr             => framebuffer_addr,
-      O_wr_data          => framebuffer_wr_data,
-      O_data_mask        => framebuffer_data_mask,
-      I_rd_data_valid    => rd_data_valid,
-      I_rd_data          => rd_data,
-      I_init_calib       => init_calib
+  block_framebuffer: BlockFramebuffer
+    port map(
+      I_dma_clk => clk_hyperram_out_buffered,
+      I_rst => reset,
+      O_cmd => arbiter_cmd,
+      O_cmd_en => arbiter_cmd_en,
+      O_addr => arbiter_addr,
+      O_wr_data => arbiter_wr_data,
+      O_data_mask => arbiter_data_mask,
+      I_rd_data_valid => rd_data_valid,
+      I_rd_data => rd_data,
+      I_init_calib => init_calib,
+
+      I_vin_clk => '0',
+      I_vin_wr_enable => '0',
+      I_vin_data => (others => '0'),
+
+      I_vout_clk => clk_pixel_buffered,
+      I_vout_vs_hs => C1_C0,
+      I_vout_de => DE,
+      O_vout_vs_hs => open,
+      O_vout_de => vout_den,
+      O_vout_data => vout_data,
+      O_vout_fifo_empty => debug_fifo_empty
     );
+
     red_D   <= vout_data(15 downto 11) & "000";
     green_D <= vout_data(10 downto 5) & "00";
     blue_D  <= vout_data(4 downto 0) & "000";
@@ -415,29 +422,7 @@ library ieee;
       master_pslverr1 => master_pslverr1,
       reset_n => resetn
     );
-  pixel_Arbiter: PixelArbiter
-    port map(
-      apb_master_clk => master_pclk,
-      apb_master_prst => master_prst,
-      apb_master_penable => master_penable,
-      apb_master_pwrite => master_pwrite,
-      apb_master_paddr => master_paddr,
-      apb_master_pwdata => master_pwdata,
-      apb_master_pselX => master_psel1,
-      apb_master_preadyX => master_pready1,
 
-      hyperram_wr_data => arbiter_wr_data,
-      hyperram_addr => arbiter_addr,
-      hyperram_cmd => arbiter_cmd,
-      hyperram_cmd_en => arbiter_cmd_en,
-      hyperram_data_mask => arbiter_data_mask,
-
-      framebuffer_cmd => framebuffer_cmd,
-      framebuffer_cmd_en => framebuffer_cmd_en,
-      framebuffer_addr => framebuffer_addr,
-      framebuffer_wr_data => framebuffer_wr_data,
-      framebuffer_data_mask => framebuffer_data_mask 
-    );
 
 
     videoTiming : VideoTimingGenerator port map(
