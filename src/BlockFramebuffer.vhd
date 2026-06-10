@@ -83,20 +83,12 @@ end component;
 --signal arbiter_wr_data: std_logic_vector(31 downto 0) := (others => '0');
 --constant arbiter_data_mask: std_logic_vector(3 downto 0) := "0000";
 
-signal vout_vs_hs_delayed1 : std_logic_vector(1 downto 0);
-signal vout_de_delayed1 : std_logic;
-signal vout_vs_hs_delayed2 : std_logic_vector(1 downto 0);
-signal vout_de_delayed2 : std_logic;
-signal vout_vs_hs_delayed3 : std_logic_vector(1 downto 0);
-signal vout_de_delayed3 : std_logic;
-
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
 signal vin_fifo_Almost_Full: std_logic := '0';
 signal vin_fifo_Empty: std_logic := '0';
 signal vin_fifo_Full: std_logic := '0';
 signal vin_fifo_data_out: std_logic_vector(31 downto 0);
-
 
 signal vout_fifo_data_in: std_logic_vector(31 downto 0);
 signal vout_fifo_WrEn: std_logic := '0';
@@ -105,6 +97,8 @@ signal vout_fifo_Empty: std_logic := '0';
 signal vout_fifo_Almost_Full: std_logic := '0';
 signal vout_fifo_Full: std_logic := '0';
 signal vout_fifo_data_out: std_logic_vector(31 downto 0);
+signal vout_fifo_RdEn : std_logic := '0';
+signal vout_read_low_bits : std_logic := '0';
 
 signal mem_write_priority : unsigned(4 downto 0);
 signal mem_read_priority : unsigned(4 downto 0);
@@ -151,7 +145,7 @@ begin
       WrClk => I_dma_clk,
       RdClk => I_vout_clk,
       WrEn => vout_fifo_WrEn,
-      RdEn => I_vout_de,
+      RdEn => vout_fifo_RdEn,
       Almost_Empty => vout_fifo_Almost_Empty,
       Almost_Full => vout_fifo_Almost_Full,
       Q => vout_fifo_data_out,
@@ -254,24 +248,25 @@ begin
         end if;
       end if;
     end if;
-  --TODO process reading from first fifo writing to memory and reading to second fifo
   end process;
-  O_vout_data <= vout_fifo_data_out(15 downto 0);-- TODO make it so it reads 2 x 16 bits pixels 
--- 1-cycle delay to match FWFT FIFO read latency
+
   process(I_vout_clk)
   begin
     if rising_edge(I_vout_clk) then
-      vout_vs_hs_delayed1 <= I_vout_vs_hs;
-      vout_de_delayed1 <= I_vout_de;
-      vout_vs_hs_delayed2 <= vout_vs_hs_delayed1;
-      vout_de_delayed2 <= vout_de_delayed1;
-      vout_vs_hs_delayed3 <= vout_vs_hs_delayed2;
-      vout_de_delayed3 <= vout_de_delayed2;
+      if I_rst = '1' then
+        vout_read_low_bits <= '0';
+      elsif I_vout_vs_hs(0) = '1' then 
+        vout_read_low_bits <= '0'; -- Resync at start of line
+      elsif I_vout_de = '1' then
+        vout_read_low_bits <= not vout_read_low_bits; 
+      end if;
     end if;
   end process;
-  
-   O_vout_vs_hs <= vout_vs_hs_delayed2;
-   O_vout_de <= vout_de_delayed2;
+
+  vout_fifo_RdEn <= I_vout_de and vout_read_low_bits; 
+  O_vout_data <= vout_fifo_data_out(15 downto 0) when vout_read_low_bits = '0' else vout_fifo_data_out(31 downto 16);
+  O_vout_vs_hs <= I_vout_vs_hs;
+  O_vout_de    <= I_vout_de;
 -- process (apb_master_clk)
 --  begin
 --    if rising_edge(apb_master_clk) then
