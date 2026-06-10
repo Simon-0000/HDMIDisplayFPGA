@@ -8,7 +8,8 @@ entity BlockFramebuffer is
     FIFO_OUTPUT_SIZE: positive := 512;
     BLOCK_SIZE: positive := 16;
     H_ACTIVE : positive := 640;
-    V_ACTIVE : positive := 480
+    V_ACTIVE : positive := 480;
+    MEM_BURST_NUM : positive := 32
   );
   port (
     I_dma_clk: in std_logic;
@@ -82,8 +83,12 @@ end component;
 --signal arbiter_wr_data: std_logic_vector(31 downto 0) := (others => '0');
 --constant arbiter_data_mask: std_logic_vector(3 downto 0) := "0000";
 
-signal vout_vs_hs_delayed : std_logic_vector(1 downto 0);
-signal vout_de_delayed : std_logic;
+signal vout_vs_hs_delayed1 : std_logic_vector(1 downto 0);
+signal vout_de_delayed1 : std_logic;
+signal vout_vs_hs_delayed2 : std_logic_vector(1 downto 0);
+signal vout_de_delayed2 : std_logic;
+signal vout_vs_hs_delayed3 : std_logic_vector(1 downto 0);
+signal vout_de_delayed3 : std_logic;
 
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
@@ -103,6 +108,7 @@ signal vout_fifo_data_out: std_logic_vector(31 downto 0);
 
 signal mem_write_priority : unsigned(4 downto 0);
 signal mem_read_priority : unsigned(4 downto 0);
+signal rw_alternate : std_logic := '0';
 
 -- vin and vout indexes
 constant NBR_OF_PIXELS : positive := H_ACTIVE * V_ACTIVE;
@@ -111,12 +117,16 @@ constant NBR_OF_BLOCKS : positive := NBR_OF_PIXELS / NBR_OF_BLOCK_PIXELS;
 constant MEM_READ_PIXEL_INDEX_MSB : natural := clog2(NBR_OF_PIXELS) - 1;
 constant MEM_WRITE_BLOCK_INDEX_MSB : natural := clog2(NBR_OF_BLOCKS) - 1;
 constant MEM_WRITE_BLOCK_PIXEL_INDEX_MSB : natural := clog2(BLOCK_SIZE) - 1;
-signal mem_read_pixel_index : unsigned(MEM_READ_PIXEL_INDEX_MSB downto 0);
-signal mem_write_block_index : unsigned(MEM_WRITE_BLOCK_INDEX_MSB downto 0);
+constant MEM_BURST_INDEX_MSB : natural := clog2(MEM_BURST_NUM) - 1;
+
+signal mem_read_pixel_index : unsigned(MEM_READ_PIXEL_INDEX_MSB downto 0) := (others => '0');
+signal mem_write_block_index : unsigned(MEM_WRITE_BLOCK_INDEX_MSB downto 0) := (others => '0');
 signal mem_reset_write_block_index : std_logic := '1';
-signal mem_write_block_x_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0);
-signal mem_write_block_y_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0);
-signal rw_alternate : std_logic := '0';
+signal mem_write_block_x_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
+signal mem_write_block_y_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
+signal mem_burst_index : unsigned(MEM_BURST_INDEX_MSB downto 0) := (others => '0');
+signal mem_burst_is_active : std_logic := '0';
+
 
 begin
   vin_fifo: block_framebuffer_FIFO
@@ -174,56 +184,73 @@ begin
         mem_write_block_x_pixel_index <= (others => '0');
         mem_write_block_y_pixel_index <= (others => '0');
         mem_reset_write_block_index <= '1';
+        mem_burst_index <= (others => '0');
+        mem_burst_is_active <= '0';
+        O_data_mask <= (others => '0');
+
       else
         vin_fifo_RdEn <= '0';
         vout_fifo_WrEn <= '0';
         O_cmd_en <= '0';
+        O_data_mask <= (others => '0');
 
-        rw_alternate <= not rw_alternate;
-        if(I_init_calib = '1') then
-          if (mem_read_priority > mem_write_priority) and (vout_fifo_Full = '0') then -- Request read from memory
-            O_cmd <= '0';
-            O_cmd_en <= '1';
-            O_addr <= std_logic_vector(resize(mem_read_pixel_index, O_addr'length));
-            if mem_read_pixel_index = NBR_OF_PIXELS - 1 then
-              mem_read_pixel_index <= (others => '0');
-            else
-              mem_read_pixel_index <= mem_read_pixel_index + 1;
-            end if;
-
-          elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Empty = '0') then -- Write what is in vin fifo and request read for next iteration
-            vin_fifo_RdEn <= '1';
-            if mem_reset_write_block_index = '1' then -- take note of the block index (first WORD of a burst)
-              mem_write_block_index <= unsigned(vin_fifo_data_out(MEM_WRITE_BLOCK_INDEX_MSB downto 0));
-              mem_reset_write_block_index <= '0';
-            else -- write a stream of pixels to fill the block in memory
-              O_cmd <= '1';
+        if I_init_calib = '1' then
+          if mem_burst_is_active = '0' then 
+            mem_burst_index <= (others => '0');
+            rw_alternate <= not rw_alternate;
+            if (mem_read_priority > mem_write_priority) and (vout_fifo_Almost_Full = '0') then -- Request read from memory
+              O_cmd <= '0';
               O_cmd_en <= '1';
-              O_wr_data <= vin_fifo_data_out;
-              O_addr <= std_logic_vector(to_unsigned(
-                (((to_integer(mem_write_block_index) / (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_y_pixel_index)) * H_ACTIVE + 
-                (((to_integer(mem_write_block_index) mod (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_x_pixel_index)), 
-                O_addr'length
-              ));
-              
-              if mem_write_block_x_pixel_index = BLOCK_SIZE - 1 then
-                mem_write_block_x_pixel_index <= (others => '0');
-                if mem_write_block_y_pixel_index = BLOCK_SIZE - 1 then
-                  mem_write_block_y_pixel_index <= (others => '0');
-                  mem_reset_write_block_index <= '1';
-                else
-                  mem_write_block_y_pixel_index <= mem_write_block_y_pixel_index + 1;
-                end if;
+              mem_burst_is_active <= '1';
+              O_addr <= std_logic_vector(resize(mem_read_pixel_index, O_addr'length));
+              if mem_read_pixel_index >= NBR_OF_PIXELS - MEM_BURST_NUM then
+                mem_read_pixel_index <= (others => '0');
               else
-                mem_write_block_x_pixel_index <= mem_write_block_x_pixel_index + 1;
+                mem_read_pixel_index <= mem_read_pixel_index + MEM_BURST_NUM;
+              end if;
+
+            elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Almost_Empty = '0') then -- Write what is in vin fifo and request read for next iteration
+              vin_fifo_RdEn <= '1';
+              if mem_reset_write_block_index = '1' then -- take note of the block index (first WORD of a burst)
+                mem_write_block_index <= unsigned(vin_fifo_data_out(MEM_WRITE_BLOCK_INDEX_MSB downto 0));
+                mem_reset_write_block_index <= '0';
+              else -- write a stream of pixels to fill the block in memory
+                O_cmd <= '1';
+                O_cmd_en <= '1';
+                mem_burst_is_active <= '1';
+                O_wr_data <= vin_fifo_data_out;
+                O_addr <= std_logic_vector(to_unsigned(
+                  (((to_integer(mem_write_block_index) / (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_y_pixel_index)) * H_ACTIVE + 
+                  (((to_integer(mem_write_block_index) mod (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_x_pixel_index)), 
+                  O_addr'length
+                ));
+                
+                if mem_write_block_x_pixel_index = BLOCK_SIZE - 1 then
+                  mem_write_block_x_pixel_index <= (others => '0');
+                  if mem_write_block_y_pixel_index = BLOCK_SIZE - 1 then
+                    mem_write_block_y_pixel_index <= (others => '0');
+                    mem_reset_write_block_index <= '1';
+                  else
+                    mem_write_block_y_pixel_index <= mem_write_block_y_pixel_index + 1;
+                  end if;
+                else
+                  mem_write_block_x_pixel_index <= mem_write_block_x_pixel_index + 1;
+                end if;
+              end if;
+            end if; 
+          
+          else -- if mem_burst_is_active = '1'
+            if I_rd_data_valid = '1' then -- Request write to vout fifo
+              vout_fifo_WrEn <= '1';
+              vout_fifo_data_in <= I_rd_data;
+              if mem_burst_index = MEM_BURST_NUM - 1 then
+                mem_burst_index <= (others => '0');
+                mem_burst_is_active <= '0';
+              else
+                mem_burst_index <= mem_burst_index + 1;
               end if;
             end if;
-
-          end if;
-        end if;     
-        if I_rd_data_valid = '1' then -- Request write to vout fifo
-          vout_fifo_WrEn <= '1';
-          vout_fifo_data_in <= I_rd_data;
+          end if; 
         end if;
       end if;
     end if;
@@ -234,13 +261,17 @@ begin
   process(I_vout_clk)
   begin
     if rising_edge(I_vout_clk) then
-      vout_vs_hs_delayed <= I_vout_vs_hs;
-      vout_de_delayed <= I_vout_de;
+      vout_vs_hs_delayed1 <= I_vout_vs_hs;
+      vout_de_delayed1 <= I_vout_de;
+      vout_vs_hs_delayed2 <= vout_vs_hs_delayed1;
+      vout_de_delayed2 <= vout_de_delayed1;
+      vout_vs_hs_delayed3 <= vout_vs_hs_delayed2;
+      vout_de_delayed3 <= vout_de_delayed2;
     end if;
   end process;
-
-   O_vout_vs_hs <= vout_vs_hs_delayed;
-   O_vout_de <= vout_de_delayed;
+  
+   O_vout_vs_hs <= vout_vs_hs_delayed2;
+   O_vout_de <= vout_de_delayed2;
 -- process (apb_master_clk)
 --  begin
 --    if rising_edge(apb_master_clk) then
