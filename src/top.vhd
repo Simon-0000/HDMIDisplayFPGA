@@ -130,9 +130,7 @@ library ieee;
 
   component BlockFramebuffer is
     generic(
-      FIFO_INPUT_SIZE: positive := 512;
-      FIFO_OUTPUT_SIZE: positive := 512;
-      BLOCK_SIZE: positive := 16;
+      BLOCK_SIZE: positive := 32;
       H_ACTIVE : positive := 640;
       V_ACTIVE : positive := 480
     );
@@ -160,6 +158,7 @@ library ieee;
       O_vout_vs_hs: out std_logic_vector(1 downto 0);
       O_vout_de: out std_logic;
       O_vout_data: out std_logic_vector(15 downto 0);
+      O_vin_fifo_full: out std_logic;
       O_vout_fifo_empty: out std_logic
     );
   end component;
@@ -287,7 +286,10 @@ library ieee;
   signal master_pready1: std_logic;
   signal master_pslverr1: std_logic := '0';
 
-  signal debug_fifo_empty : std_logic;
+  signal vin_framebuffer_fifo_full : std_logic;
+  signal vout_framebuffer_fifo_empty : std_logic;
+  signal mcu_vin_data : std_logic_vector(31 downto 0);
+  signal mcu_wr_enable : std_logic := '0';
 
   signal cmd_en_pipe : std_logic;
   signal addr_pipe   : std_logic_vector(21 downto 0);
@@ -297,6 +299,7 @@ library ieee;
   signal por_resetn : std_logic := '0';
   signal por_cnt    : unsigned(15 downto 0) := (others => '0');
   signal vout_den : std_logic;
+  signal vout_vs_hs : std_logic_vector(1 downto 0);
   begin
     --Reset 
     reset <= not(resetn);
@@ -386,17 +389,18 @@ library ieee;
       I_rd_data => rd_data,
       I_init_calib => init_calib,
 
-      I_vin_clk => '0',
-      I_vin_wr_enable => '0',
-      I_vin_data => (others => '0'),
+      I_vin_clk => master_pclk,
+      I_vin_wr_enable => mcu_wr_enable,
+      I_vin_data => mcu_vin_data,
 
       I_vout_clk => clk_pixel_buffered,
       I_vout_vs_hs => C1_C0,
       I_vout_de => DE,
-      O_vout_vs_hs => open,
+      O_vout_vs_hs => vout_vs_hs,
       O_vout_de => vout_den,
       O_vout_data => vout_data,
-      O_vout_fifo_empty => debug_fifo_empty
+      O_vin_fifo_full => vin_framebuffer_fifo_full,
+      O_vout_fifo_empty => vout_framebuffer_fifo_empty
     );
 
     red_D   <= vout_data(15 downto 11) & "000";
@@ -423,7 +427,30 @@ library ieee;
       reset_n => resetn
     );
 
-
+process (master_pclk)
+    begin
+      if rising_edge(master_pclk) then
+        if master_prst = '0' then
+          master_pready1 <= '0';
+          mcu_vin_data <= (others=>'0');
+          mcu_wr_enable <= '0';
+        else
+          master_pready1 <= not vin_framebuffer_fifo_full;
+          mcu_wr_enable <= '0'; -- Reset pulse by default
+          
+          if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
+            if master_paddr(7 downto 0) = "00000000" then
+              mcu_vin_data <= master_pwdata;
+              -- Only write if the FIFO actually has room and the APB is ready
+              if vin_framebuffer_fifo_full = '0' then
+                mcu_wr_enable <= '1';
+              end if;
+            end if;
+          end if;
+          
+        end if;
+      end if;
+    end process;
 
     videoTiming : VideoTimingGenerator port map(
       clk => clk_pixel_buffered,
@@ -456,7 +483,7 @@ library ieee;
       clk => clk_pixel_buffered,
       reset => reset,
       D => blue_D,
-      C1_C0 => C1_C0,
+      C1_C0 => vout_vs_hs,
       DE => vout_den,
       q_out => blue_q_out
     );

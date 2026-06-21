@@ -4,9 +4,7 @@ use ieee.numeric_std.all;
 
 entity BlockFramebuffer is
   generic(
-    FIFO_INPUT_SIZE: positive := 512;
-    FIFO_OUTPUT_SIZE: positive := 512;
-    BLOCK_SIZE: positive := 16;
+    BLOCK_SIZE: positive := 32; -- in words so 32 means 32 * 2 pixels because 1 word = 2 pixels
     H_ACTIVE : positive := 640;
     V_ACTIVE : positive := 480;
     MEM_BURST_NUM : positive := 32
@@ -34,8 +32,8 @@ entity BlockFramebuffer is
     O_vout_vs_hs: out std_logic_vector(1 downto 0);
     O_vout_de: out std_logic;
     O_vout_data: out std_logic_vector(15 downto 0);
+    O_vin_fifo_full: out std_logic;
     O_vout_fifo_empty: out std_logic
-    
   );
 end BlockFramebuffer;
 
@@ -82,7 +80,8 @@ end component;
 --signal arbiter_addr: std_logic_vector(21 downto 0) := (others => '0');
 --signal arbiter_wr_data: std_logic_vector(31 downto 0) := (others => '0');
 --constant arbiter_data_mask: std_logic_vector(3 downto 0) := "0000";
-
+type mem_state_type is (RW_DECISION, READ_BURST, WRITE_BURST);
+signal mem_state : mem_state_type := RW_DECISION;
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
 signal vin_fifo_Almost_Full: std_logic := '0';
@@ -106,7 +105,7 @@ signal rw_alternate : std_logic := '0';
 
 -- vin and vout indexes
 constant NBR_OF_PIXELS : positive := H_ACTIVE * V_ACTIVE;
-constant NBR_OF_BLOCK_PIXELS : positive := BLOCK_SIZE * BLOCK_SIZE;
+constant NBR_OF_BLOCK_PIXELS : positive := (BLOCK_SIZE/2) * (BLOCK_SIZE/2);
 constant NBR_OF_BLOCKS : positive := NBR_OF_PIXELS / NBR_OF_BLOCK_PIXELS;
 constant MEM_READ_PIXEL_INDEX_MSB : natural := clog2(NBR_OF_PIXELS) - 1;
 constant MEM_WRITE_BLOCK_INDEX_MSB : natural := clog2(NBR_OF_BLOCKS) - 1;
@@ -114,13 +113,11 @@ constant MEM_WRITE_BLOCK_PIXEL_INDEX_MSB : natural := clog2(BLOCK_SIZE) - 1;
 constant MEM_BURST_INDEX_MSB : natural := clog2(MEM_BURST_NUM) - 1;
 
 signal mem_read_pixel_index : unsigned(MEM_READ_PIXEL_INDEX_MSB downto 0) := (others => '0');
-signal mem_write_block_index : unsigned(MEM_WRITE_BLOCK_INDEX_MSB downto 0) := (others => '0');
 signal mem_reset_write_block_index : std_logic := '1';
-signal mem_write_block_x_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
 signal mem_write_block_y_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
+signal mem_write_addr : unsigned(21 downto 0) := (others => '0');
 signal mem_burst_index : unsigned(MEM_BURST_INDEX_MSB downto 0) := (others => '0');
 signal mem_burst_is_active : std_logic := '0';
-
 
 begin
   vin_fifo: block_framebuffer_FIFO
@@ -153,9 +150,9 @@ begin
       Full => vout_fifo_Full
     );
 
+  O_vin_fifo_full <= vin_fifo_Full;
   O_vout_fifo_empty <= vout_fifo_Empty;
-
-  mem_write_priority(0) <= rw_alternate;
+  
   mem_read_priority(0) <= not(rw_alternate);
   mem_write_priority(1) <= vin_fifo_Almost_Empty and not(vin_fifo_Empty);
   mem_read_priority(1) <= vout_fifo_Almost_Full and not(vout_fifo_Full);
@@ -166,6 +163,7 @@ begin
   mem_write_priority(4) <= vin_fifo_Full;
   mem_read_priority(4) <= vout_fifo_Empty;
   process(I_dma_clk)
+
   begin
     if rising_edge(I_dma_clk) then
       if I_rst = '1' then
@@ -174,14 +172,12 @@ begin
         vout_fifo_WrEn <= '0';
         O_cmd_en <= '0';
         mem_read_pixel_index <= (others => '0');
-        mem_write_block_index <= (others => '0');
-        mem_write_block_x_pixel_index <= (others => '0');
+        mem_write_addr <= (others=> '0');
         mem_write_block_y_pixel_index <= (others => '0');
         mem_reset_write_block_index <= '1';
         mem_burst_index <= (others => '0');
-        mem_burst_is_active <= '0';
         O_data_mask <= (others => '0');
-
+        mem_state <= RW_DECISION;
       else
         vin_fifo_RdEn <= '0';
         vout_fifo_WrEn <= '0';
@@ -189,15 +185,15 @@ begin
         O_data_mask <= (others => '0');
 
         if I_init_calib = '1' then
-          if mem_burst_is_active = '0' then 
-            mem_burst_index <= (others => '0');
+          if mem_state = RW_DECISION then 
+            mem_burst_index <= (others => '0'); --TODO remove
             rw_alternate <= not rw_alternate;
             if (mem_read_priority > mem_write_priority) and (vout_fifo_Almost_Full = '0') then -- Request read from memory
+              mem_state <= READ_BURST;
               O_cmd <= '0';
               O_cmd_en <= '1';
-              mem_burst_is_active <= '1';
               O_addr <= std_logic_vector(resize(mem_read_pixel_index, O_addr'length));
-              if mem_read_pixel_index >= NBR_OF_PIXELS - MEM_BURST_NUM then
+              if mem_read_pixel_index >= (NBR_OF_PIXELS / 2) - MEM_BURST_NUM then
                 mem_read_pixel_index <= (others => '0');
               else
                 mem_read_pixel_index <= mem_read_pixel_index + MEM_BURST_NUM;
@@ -205,46 +201,51 @@ begin
 
             elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Almost_Empty = '0') then -- Write what is in vin fifo and request read for next iteration
               vin_fifo_RdEn <= '1';
-              if mem_reset_write_block_index = '1' then -- take note of the block index (first WORD of a burst)
-                mem_write_block_index <= unsigned(vin_fifo_data_out(MEM_WRITE_BLOCK_INDEX_MSB downto 0));
+              if mem_reset_write_block_index = '1' then 
                 mem_reset_write_block_index <= '0';
-              else -- write a stream of pixels to fill the block in memory
-                O_cmd <= '1';
-                O_cmd_en <= '1';
-                mem_burst_is_active <= '1';
-                O_wr_data <= vin_fifo_data_out;
-                O_addr <= std_logic_vector(to_unsigned(
-                  (((to_integer(mem_write_block_index) / (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_y_pixel_index)) * H_ACTIVE + 
-                  (((to_integer(mem_write_block_index) mod (H_ACTIVE / BLOCK_SIZE)) * BLOCK_SIZE) + to_integer(mem_write_block_x_pixel_index)), 
-                  O_addr'length
-                ));
-                
-                if mem_write_block_x_pixel_index = BLOCK_SIZE - 1 then
-                  mem_write_block_x_pixel_index <= (others => '0');
-                  if mem_write_block_y_pixel_index = BLOCK_SIZE - 1 then
-                    mem_write_block_y_pixel_index <= (others => '0');
-                    mem_reset_write_block_index <= '1';
-                  else
-                    mem_write_block_y_pixel_index <= mem_write_block_y_pixel_index + 1;
-                  end if;
-                else
-                  mem_write_block_x_pixel_index <= mem_write_block_x_pixel_index + 1;
-                end if;
+                mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
+                vin_fifo_RdEn <= '1'; 
+              else
+                mem_state <= WRITE_BURST;
               end if;
-            end if; 
-          
-          else -- if mem_burst_is_active = '1'
+
+            end if;           
+          elsif mem_state = READ_BURST then
             if I_rd_data_valid = '1' then -- Request write to vout fifo
               vout_fifo_WrEn <= '1';
               vout_fifo_data_in <= I_rd_data;
               if mem_burst_index = MEM_BURST_NUM - 1 then
                 mem_burst_index <= (others => '0');
-                mem_burst_is_active <= '0';
+                mem_state <= RW_DECISION;
               else
                 mem_burst_index <= mem_burst_index + 1;
               end if;
             end if;
-          end if; 
+          elsif mem_state = WRITE_BURST then
+            if mem_burst_index = 0 then
+              O_cmd <= '1';
+              O_cmd_en <= '1';
+              O_addr <= std_logic_vector(mem_write_addr);
+              mem_state <= WRITE_BURST;
+            end if;
+            O_wr_data <= vin_fifo_data_out;
+            O_data_mask <= (others => '0'); -- TODO add mask logic later (others => '1') when vin_fifo_data_out(vin_fifo_data_out'high) = '1' else
+            
+            if mem_burst_index = MEM_BURST_NUM - 1 then
+              mem_burst_index <= (others => '0');
+              mem_write_addr <= mem_write_addr + (H_ACTIVE / 2);
+              mem_state <= RW_DECISION;
+              if mem_write_block_y_pixel_index = BLOCK_SIZE - 1 then
+                mem_write_block_y_pixel_index <= (others => '0');
+                mem_reset_write_block_index <= '1';
+              else
+                mem_write_block_y_pixel_index <= mem_write_block_y_pixel_index + 1;
+              end if;
+            else
+              mem_burst_index <= mem_burst_index + 1;
+              vin_fifo_RdEn <= '1';
+            end if;
+          end if;
         end if;
       end if;
     end if;
@@ -255,18 +256,27 @@ begin
     if rising_edge(I_vout_clk) then
       if I_rst = '1' then
         vout_read_low_bits <= '0';
-      elsif I_vout_vs_hs(0) = '1' then 
-        vout_read_low_bits <= '0'; -- Resync at start of line
-      elsif I_vout_de = '1' then
+      elsif I_vout_de = '0' then 
+        vout_read_low_bits <= '0';
+      else
         vout_read_low_bits <= not vout_read_low_bits; 
       end if;
     end if;
   end process;
 
   vout_fifo_RdEn <= I_vout_de and vout_read_low_bits; 
-  O_vout_data <= vout_fifo_data_out(15 downto 0) when vout_read_low_bits = '0' else vout_fifo_data_out(31 downto 16);
-  O_vout_vs_hs <= I_vout_vs_hs;
-  O_vout_de    <= I_vout_de;
+  process(I_vout_clk)
+  begin
+    if rising_edge(I_vout_clk) then
+      if vout_read_low_bits = '0' then
+        O_vout_data <= vout_fifo_data_out(15 downto 0);
+      else
+        O_vout_data <= vout_fifo_data_out(31 downto 16);
+      end if;
+      O_vout_vs_hs <= I_vout_vs_hs;
+      O_vout_de    <= I_vout_de;
+    end if;
+  end process;
 -- process (apb_master_clk)
 --  begin
 --    if rising_edge(apb_master_clk) then

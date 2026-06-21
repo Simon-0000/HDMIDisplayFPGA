@@ -50,21 +50,36 @@ extern "C" int main(void)
 static void setScreenColor(const uint32_t rgb_value)
 {
 	uint16_t r = (uint16_t)((rgb_value >> 16) & 0xFF) >> 3;
-	uint16_t g = (uint16_t)((rgb_value >> 8) & 0xFF) >> 2;
+	uint16_t g = (uint16_t)((rgb_value >> 8) & 0xFF) >> 3;
 	uint16_t b = (uint16_t)((rgb_value) & 0xFF) >> 3;
 
-	uint16_t rgb565_color = (r << 11) | (g << 5) | b;
-	uint32_t pixel_pair = ((uint32_t)rgb565_color << 16) | rgb565_color;
+	uint16_t rgb555_color = (r << 10) | (g << 5) | b;
+	uint32_t pixel_pair = ((uint32_t)rgb555_color << 16) | rgb555_color;
 
-	uint32_t total_blocks = (640 / 16) * (480 / 16);
+	uint32_t words_per_line = 320;
+	uint32_t block_width_words = 32;
+	uint32_t block_height = 32;
 
-	for (uint32_t block = 0; block < total_blocks; block++)
+	uint32_t blocks_x = words_per_line / block_width_words;
+	uint32_t blocks_y = 480 / block_height;
+
+	volatile uint32_t* fifo_reg = (volatile uint32_t*)APB2MASTER1_BASE;
+
+	for (uint32_t by = 0; by < blocks_y; by++)
 	{
-		*((volatile uint32_t*)(APB2MASTER1_BASE + 0x04)) = block;
-
-		for (uint32_t p = 0; p < 128; p++)
+		for (uint32_t bx = 0; bx < blocks_x; bx++)
 		{
-			*((volatile uint32_t*)(APB2MASTER1_BASE + 0x00)) = pixel_pair;
+			uint32_t base_address = (by * block_height * words_per_line) + (bx * block_width_words);
+
+			*fifo_reg = base_address;
+
+			for (uint32_t py = 0; py < block_height; py++)
+			{
+				for (uint32_t px = 0; px < block_width_words; px++)
+				{
+					*fifo_reg = pixel_pair;
+				}
+			}
 		}
 	}
 }
