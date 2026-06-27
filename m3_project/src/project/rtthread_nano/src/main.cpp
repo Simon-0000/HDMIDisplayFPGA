@@ -120,8 +120,8 @@ void setAnimationCmd(int argc, char **argv)
 }
 void pong(int argc, char **argv)
 {
-    static Pong game("PongGame");
-    game.start();
+//    static Pong game("PongGame");
+//    game.start();
 }
 
 void clear(int argc, char **argv)
@@ -129,6 +129,56 @@ void clear(int argc, char **argv)
 	rt_kprintf("\e[1;1H\e[2J");
 }
 
+void setColorSlow(int argc, char **argv)
+{
+    uint32_t words_per_line = 320;
+    uint32_t block_width_words = 32;
+    uint32_t block_height = 32;
+
+    uint32_t blocks_x = words_per_line / block_width_words;
+    uint32_t blocks_y = 480 / block_height;
+    uint32_t total_blocks = blocks_x * blocks_y;
+
+    uint32_t delay_ms = 1000 / total_blocks;
+
+    volatile uint32_t* fifo_reg = (volatile uint32_t*)APB2MASTER1_BASE;
+
+    uint32_t colors[4] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFFFF};
+
+    for (int frame = 0; frame < 20; frame++)
+    {
+        uint32_t rgb_value = colors[frame % 4];
+
+        uint16_t r = (uint16_t)((rgb_value >> 16) & 0xFF) >> 3;
+        uint16_t g = (uint16_t)((rgb_value >> 8) & 0xFF) >> 3;
+        uint16_t b = (uint16_t)((rgb_value) & 0xFF) >> 3;
+
+        uint16_t rgb555_color = (r << 10) | (g << 5) | b;
+        uint32_t pixel_pair = ((uint32_t)rgb555_color << 16) | rgb555_color;
+
+        for (uint32_t by = 0; by < blocks_y; by++)
+        {
+            for (uint32_t bx = 0; bx < blocks_x; bx++)
+            {
+                uint32_t base_address = (by * block_height * words_per_line) + (bx * block_width_words);
+
+                *fifo_reg = base_address;
+
+                for (uint32_t py = 0; py < block_height; py++)
+                {
+                    for (uint32_t px = 0; px < block_width_words; px++)
+                    {
+                        *fifo_reg = pixel_pair;
+                    }
+                }
+
+                rt_thread_mdelay(delay_ms);
+            }
+        }
+    }
+}
+
+MSH_CMD_EXPORT_ALIAS(setColorSlow, slowFill, Run 20s block by block slow fill);
 MSH_CMD_EXPORT(pong, Start pongGame);
 MSH_CMD_EXPORT(clear, Clear terminal);
 MSH_CMD_EXPORT(setAnimationCmd, Run RGB fade animation);
