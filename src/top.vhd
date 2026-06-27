@@ -403,8 +403,8 @@ library ieee;
       O_vout_fifo_empty => vout_framebuffer_fifo_empty
     );
 
-    red_D   <= vout_data(15 downto 11) & "000";
-    green_D <= vout_data(10 downto 5) & "00";
+    red_D   <= vout_data(14 downto 10) & "000";
+    green_D <= vout_data(9 downto 5) & "000";
     blue_D  <= vout_data(4 downto 0) & "000";
 
   hardcoreM3: Gowin_EMPU_Top
