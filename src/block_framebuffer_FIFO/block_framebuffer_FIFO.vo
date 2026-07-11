@@ -2,7 +2,7 @@
 //All rights reserved.
 //File Title: Post-PnR Verilog Simulation Model file
 //Tool Version: V1.9.11.03 Education
-//Created Time: Sat Jun 27 17:48:34 2026
+//Created Time: Sat Jul 11 17:16:43 2026
 
 `timescale 100 ps/100 ps
 module block_framebuffer_FIFO(
@@ -550,13 +550,13 @@ LUT4 \fifo_inst/wfull_val_s4  (
 );
 defparam \fifo_inst/wfull_val_s4 .INIT=16'h0990;
 LUT4 \fifo_inst/arempty_val_s1  (
-	.I0(\fifo_inst/rcnt_sub [1]),
-	.I1(\fifo_inst/rcnt_sub [2]),
+	.I0(\fifo_inst/rcnt_sub [0]),
+	.I1(RdEn),
 	.I2(\fifo_inst/arempty_val_6 ),
 	.I3(\fifo_inst/rcnt_sub [5]),
 	.F(\fifo_inst/arempty_val_4 )
 );
-defparam \fifo_inst/arempty_val_s1 .INIT=16'hEF00;
+defparam \fifo_inst/arempty_val_s1 .INIT=16'hBF00;
 LUT4 \fifo_inst/awfull_val_s1  (
 	.I0(\fifo_inst/awfull_val_5 ),
 	.I1(\fifo_inst/wcnt_sub [7]),
@@ -651,13 +651,13 @@ LUT4 \fifo_inst/wfull_val_s10  (
 );
 defparam \fifo_inst/wfull_val_s10 .INIT=16'hE11E;
 LUT4 \fifo_inst/arempty_val_s3  (
-	.I0(\fifo_inst/rcnt_sub [0]),
-	.I1(RdEn),
+	.I0(\fifo_inst/rcnt_sub [1]),
+	.I1(\fifo_inst/rcnt_sub [2]),
 	.I2(\fifo_inst/rcnt_sub [3]),
 	.I3(\fifo_inst/rcnt_sub [4]),
 	.F(\fifo_inst/arempty_val_6 )
 );
-defparam \fifo_inst/arempty_val_s3 .INIT=16'h000D;
+defparam \fifo_inst/arempty_val_s3 .INIT=16'h0001;
 LUT4 \fifo_inst/awfull_val_s2  (
 	.I0(WrEn),
 	.I1(\fifo_inst/wcnt_sub [0]),

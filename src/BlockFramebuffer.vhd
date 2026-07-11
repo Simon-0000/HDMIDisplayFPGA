@@ -104,15 +104,15 @@ signal mem_read_priority : unsigned(4 downto 0);
 signal rw_alternate : std_logic := '0';
 
 -- vin and vout indexes
-constant NBR_OF_PIXELS : positive := H_ACTIVE * V_ACTIVE;
-constant NBR_OF_BLOCK_PIXELS : positive := (BLOCK_SIZE/2) * (BLOCK_SIZE/2);
-constant NBR_OF_BLOCKS : positive := NBR_OF_PIXELS / NBR_OF_BLOCK_PIXELS;
-constant MEM_READ_PIXEL_INDEX_MSB : natural := clog2(NBR_OF_PIXELS) - 1;
+constant NBR_OF_WORDS : positive := H_ACTIVE * V_ACTIVE / 2;
+constant WORDS_PER_BLOCK : positive := BLOCK_SIZE * BLOCK_SIZE;
+constant NBR_OF_BLOCKS : positive := NBR_OF_WORDS / WORDS_PER_BLOCK;
+constant MEM_READ_WORD_INDEX_MSB : natural := clog2(NBR_OF_WORDS) - 1;
 constant MEM_WRITE_BLOCK_INDEX_MSB : natural := clog2(NBR_OF_BLOCKS) - 1;
 constant MEM_WRITE_BLOCK_PIXEL_INDEX_MSB : natural := clog2(BLOCK_SIZE) - 1;
 constant MEM_BURST_INDEX_MSB : natural := clog2(MEM_BURST_NUM) - 1;
 
-signal mem_read_pixel_index : unsigned(MEM_READ_PIXEL_INDEX_MSB downto 0) := (others => '0');
+signal mem_read_word_index : unsigned(MEM_READ_WORD_INDEX_MSB downto 0) := (others => '0');
 signal mem_reset_write_block_index : std_logic := '1';
 signal mem_write_block_y_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
 signal mem_write_addr : unsigned(21 downto 0) := (others => '0');
@@ -171,7 +171,7 @@ begin
         vin_fifo_RdEn <= '0';
         vout_fifo_WrEn <= '0';
         O_cmd_en <= '0';
-        mem_read_pixel_index <= (others => '0');
+        mem_read_word_index <= (others => '0');
         mem_write_addr <= (others=> '0');
         mem_write_block_y_pixel_index <= (others => '0');
         mem_reset_write_block_index <= '1';
@@ -192,11 +192,11 @@ begin
               mem_state <= READ_BURST;
               O_cmd <= '0';
               O_cmd_en <= '1';
-              O_addr <= std_logic_vector(resize(mem_read_pixel_index, O_addr'length));
-              if mem_read_pixel_index >= (NBR_OF_PIXELS / 2) - MEM_BURST_NUM then
-                mem_read_pixel_index <= (others => '0');
+              O_addr <= std_logic_vector(resize(mem_read_word_index, O_addr'length));
+              if mem_read_word_index >= NBR_OF_WORDS - MEM_BURST_NUM then
+                mem_read_word_index <= (others => '0');
               else
-                mem_read_pixel_index <= mem_read_pixel_index + MEM_BURST_NUM;
+                mem_read_word_index <= mem_read_word_index + MEM_BURST_NUM;
               end if;
 
             elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Almost_Empty = '0') then -- Write what is in vin fifo and request read for next iteration
@@ -204,7 +204,6 @@ begin
               if mem_reset_write_block_index = '1' then 
                 mem_reset_write_block_index <= '0';
                 mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
-                vin_fifo_RdEn <= '1'; 
               else
                 mem_state <= WRITE_BURST;
               end if;
