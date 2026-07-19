@@ -80,7 +80,7 @@ end component;
 --signal arbiter_addr: std_logic_vector(21 downto 0) := (others => '0');
 --signal arbiter_wr_data: std_logic_vector(31 downto 0) := (others => '0');
 --constant arbiter_data_mask: std_logic_vector(3 downto 0) := "0000";
-type mem_state_type is (RW_DECISION, READ_BURST, WRITE_BURST);
+type mem_state_type is (RW_DECISION, READ_BURST, PRE_WRITE_BURST, WRITE_BURST);
 signal mem_state : mem_state_type := RW_DECISION;
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
@@ -186,7 +186,6 @@ begin
 
         if I_init_calib = '1' then
           if mem_state = RW_DECISION then 
-            mem_burst_index <= (others => '0'); --TODO remove
             rw_alternate <= not rw_alternate;
             if (mem_read_priority > mem_write_priority) and (vout_fifo_Almost_Full = '0') then -- Request read from memory
               mem_state <= READ_BURST;
@@ -200,15 +199,19 @@ begin
               end if;
 
             elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Almost_Empty = '0') then -- Write what is in vin fifo and request read for next iteration
-              vin_fifo_RdEn <= '1';
               if mem_reset_write_block_index = '1' then 
                 mem_reset_write_block_index <= '0';
                 mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
+                vin_fifo_RdEn <= '1';
+                mem_state <= PRE_WRITE_BURST;
               else
-                mem_state <= WRITE_BURST;
+                mem_state <= PRE_WRITE_BURST;
               end if;
+            end if;  
+          elsif mem_state = PRE_WRITE_BURST then
+            vin_fifo_RdEn <= '1';
+            mem_state <= WRITE_BURST;
 
-            end if;           
           elsif mem_state = READ_BURST then
             if I_rd_data_valid = '1' then -- Request write to vout fifo
               vout_fifo_WrEn <= '1';
@@ -225,10 +228,10 @@ begin
               O_cmd <= '1';
               O_cmd_en <= '1';
               O_addr <= std_logic_vector(mem_write_addr);
-              mem_state <= WRITE_BURST;
             end if;
+            
             O_wr_data <= vin_fifo_data_out;
-            O_data_mask <= (others => '0'); -- TODO add mask logic later (others => '1') when vin_fifo_data_out(vin_fifo_data_out'high) = '1' else
+            O_data_mask <= (others => '0'); 
             
             if mem_burst_index = MEM_BURST_NUM - 1 then
               mem_burst_index <= (others => '0');
