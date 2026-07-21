@@ -21,7 +21,7 @@
         <File path="src/video_timing_generator.vhd" type="file.vhdl" enable="1"/>
         <File path="src/constraints.cst" type="file.cst" enable="1"/>
         <File path="src/clocks.sdc" type="file.sdc" enable="1"/>
-        <File path="src/BlockFrameBuffer.rao" type="file.gao" enable="1"/>
+        <File path="src/BlockFrameBuffer.rao" type="file.gao" enable="0"/>
         <File path="src/TMDS_encoder.rao" type="file.gao" enable="0"/>
     </FileList>
 </Project>

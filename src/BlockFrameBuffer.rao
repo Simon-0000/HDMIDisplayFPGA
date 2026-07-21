@@ -15,8 +15,53 @@
                 <Signal>block_framebuffer/mem_burst_index[1]</Signal>
                 <Signal>block_framebuffer/mem_burst_index[0]</Signal>
             </Bus>
-            <Signal capture_enable="true">block_framebuffer/I_vin_wr_enable</Signal>
-            <Bus capture_enable="true" name="block_framebuffer/I_vin_data[15:0]">
+            <Signal capture_enable="true">block_framebuffer/mem_reset_write_block_index</Signal>
+            <Signal capture_enable="true">block_framebuffer/vin_fifo_RdEn</Signal>
+            <Signal capture_enable="true">block_framebuffer/O_cmd_en</Signal>
+            <Signal capture_enable="true">block_framebuffer/O_cmd</Signal>
+            <Bus capture_enable="true" name="block_framebuffer/O_wr_data[8:0]">
+                <Signal>block_framebuffer/O_wr_data[8]</Signal>
+                <Signal>block_framebuffer/O_wr_data[7]</Signal>
+                <Signal>block_framebuffer/O_wr_data[6]</Signal>
+                <Signal>block_framebuffer/O_wr_data[5]</Signal>
+                <Signal>block_framebuffer/O_wr_data[4]</Signal>
+                <Signal>block_framebuffer/O_wr_data[3]</Signal>
+                <Signal>block_framebuffer/O_wr_data[2]</Signal>
+                <Signal>block_framebuffer/O_wr_data[1]</Signal>
+                <Signal>block_framebuffer/O_wr_data[0]</Signal>
+            </Bus>
+            <Bus capture_enable="true" name="block_framebuffer/O_addr[8:0]">
+                <Signal>block_framebuffer/O_addr[8]</Signal>
+                <Signal>block_framebuffer/O_addr[7]</Signal>
+                <Signal>block_framebuffer/O_addr[6]</Signal>
+                <Signal>block_framebuffer/O_addr[5]</Signal>
+                <Signal>block_framebuffer/O_addr[4]</Signal>
+                <Signal>block_framebuffer/O_addr[3]</Signal>
+                <Signal>block_framebuffer/O_addr[2]</Signal>
+                <Signal>block_framebuffer/O_addr[1]</Signal>
+                <Signal>block_framebuffer/O_addr[0]</Signal>
+            </Bus>
+            <Signal capture_enable="false">block_framebuffer/vin_fifo_Full</Signal>
+            <Bus capture_enable="false" name="block_framebuffer/I_vin_data[31:16]">
+                <Signal>block_framebuffer/I_vin_data[31]</Signal>
+                <Signal>block_framebuffer/I_vin_data[30]</Signal>
+                <Signal>block_framebuffer/I_vin_data[29]</Signal>
+                <Signal>block_framebuffer/I_vin_data[28]</Signal>
+                <Signal>block_framebuffer/I_vin_data[27]</Signal>
+                <Signal>block_framebuffer/I_vin_data[26]</Signal>
+                <Signal>block_framebuffer/I_vin_data[25]</Signal>
+                <Signal>block_framebuffer/I_vin_data[24]</Signal>
+                <Signal>block_framebuffer/I_vin_data[23]</Signal>
+                <Signal>block_framebuffer/I_vin_data[22]</Signal>
+                <Signal>block_framebuffer/I_vin_data[21]</Signal>
+                <Signal>block_framebuffer/I_vin_data[20]</Signal>
+                <Signal>block_framebuffer/I_vin_data[19]</Signal>
+                <Signal>block_framebuffer/I_vin_data[18]</Signal>
+                <Signal>block_framebuffer/I_vin_data[17]</Signal>
+                <Signal>block_framebuffer/I_vin_data[16]</Signal>
+            </Bus>
+            <Signal capture_enable="false">block_framebuffer/I_vin_wr_enable</Signal>
+            <Bus capture_enable="false" name="block_framebuffer/I_vin_data[15:0]">
                 <Signal>block_framebuffer/I_vin_data[15]</Signal>
                 <Signal>block_framebuffer/I_vin_data[14]</Signal>
                 <Signal>block_framebuffer/I_vin_data[13]</Signal>
@@ -34,11 +79,44 @@
                 <Signal>block_framebuffer/I_vin_data[1]</Signal>
                 <Signal>block_framebuffer/I_vin_data[0]</Signal>
             </Bus>
-            <Signal capture_enable="true">block_framebuffer/vin_fifo_Almost_Empty</Signal>
-            <Signal capture_enable="true">block_framebuffer/vin_fifo_Empty</Signal>
-            <Signal capture_enable="true">block_framebuffer/vin_fifo_RdEn</Signal>
-            <Signal capture_enable="false">block_framebuffer/mem_reset_write_block_index</Signal>
-            <Signal capture_enable="false">block_framebuffer/vin_fifo_Full</Signal>
+            <Signal capture_enable="false">block_framebuffer/vin_fifo_Almost_Empty</Signal>
+            <Signal capture_enable="false">block_framebuffer/vin_fifo_Empty</Signal>
+            <Bus capture_enable="false" name="block_framebuffer/vin_fifo_data_out[31:22]">
+                <Signal>block_framebuffer/vin_fifo_data_out[31]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[30]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[29]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[28]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[27]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[26]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[25]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[24]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[23]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[22]</Signal>
+            </Bus>
+            <Bus capture_enable="false" name="block_framebuffer/vin_fifo_data_out[21:0]">
+                <Signal>block_framebuffer/vin_fifo_data_out[21]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[20]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[19]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[18]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[17]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[16]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[15]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[14]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[13]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[12]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[11]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[10]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[9]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[8]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[7]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[6]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[5]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[4]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[3]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[2]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[1]</Signal>
+                <Signal>block_framebuffer/vin_fifo_data_out[0]</Signal>
+            </Bus>
             <Bus capture_enable="false" name="block_framebuffer/mem_write_addr[21:0]">
                 <Signal>block_framebuffer/mem_write_addr[21]</Signal>
                 <Signal>block_framebuffer/mem_write_addr[20]</Signal>
@@ -63,58 +141,6 @@
                 <Signal>block_framebuffer/mem_write_addr[1]</Signal>
                 <Signal>block_framebuffer/mem_write_addr[0]</Signal>
             </Bus>
-            <Bus capture_enable="false" name="block_framebuffer/vin_fifo_data_out[31:16]">
-                <Signal>block_framebuffer/vin_fifo_data_out[31]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[30]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[29]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[28]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[27]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[26]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[25]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[24]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[23]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[22]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[21]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[20]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[19]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[18]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[17]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[16]</Signal>
-            </Bus>
-            <Bus capture_enable="false" name="block_framebuffer/vin_fifo_data_out[15:0]">
-                <Signal>block_framebuffer/vin_fifo_data_out[15]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[14]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[13]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[12]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[11]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[10]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[9]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[8]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[7]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[6]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[5]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[4]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[3]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[2]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[1]</Signal>
-                <Signal>block_framebuffer/vin_fifo_data_out[0]</Signal>
-            </Bus>
-            <Bus capture_enable="false" name="block_framebuffer/O_addr[21:8]">
-                <Signal>block_framebuffer/O_addr[21]</Signal>
-                <Signal>block_framebuffer/O_addr[20]</Signal>
-                <Signal>block_framebuffer/O_addr[19]</Signal>
-                <Signal>block_framebuffer/O_addr[18]</Signal>
-                <Signal>block_framebuffer/O_addr[17]</Signal>
-                <Signal>block_framebuffer/O_addr[16]</Signal>
-                <Signal>block_framebuffer/O_addr[15]</Signal>
-                <Signal>block_framebuffer/O_addr[14]</Signal>
-                <Signal>block_framebuffer/O_addr[13]</Signal>
-                <Signal>block_framebuffer/O_addr[12]</Signal>
-                <Signal>block_framebuffer/O_addr[11]</Signal>
-                <Signal>block_framebuffer/O_addr[10]</Signal>
-                <Signal>block_framebuffer/O_addr[9]</Signal>
-                <Signal>block_framebuffer/O_addr[8]</Signal>
-            </Bus>
             <Bus capture_enable="false" name="block_framebuffer/O_wr_data[31:16]">
                 <Signal>block_framebuffer/O_wr_data[31]</Signal>
                 <Signal>block_framebuffer/O_wr_data[30]</Signal>
@@ -133,19 +159,22 @@
                 <Signal>block_framebuffer/O_wr_data[17]</Signal>
                 <Signal>block_framebuffer/O_wr_data[16]</Signal>
             </Bus>
-            <Signal capture_enable="false">block_framebuffer/O_cmd_en</Signal>
-            <Signal capture_enable="false">block_framebuffer/O_cmd</Signal>
-            <Bus capture_enable="false" name="block_framebuffer/O_addr[7:0]">
-                <Signal>block_framebuffer/O_addr[7]</Signal>
-                <Signal>block_framebuffer/O_addr[6]</Signal>
-                <Signal>block_framebuffer/O_addr[5]</Signal>
-                <Signal>block_framebuffer/O_addr[4]</Signal>
-                <Signal>block_framebuffer/O_addr[3]</Signal>
-                <Signal>block_framebuffer/O_addr[2]</Signal>
-                <Signal>block_framebuffer/O_addr[1]</Signal>
-                <Signal>block_framebuffer/O_addr[0]</Signal>
+            <Bus capture_enable="false" name="block_framebuffer/O_addr[21:9]">
+                <Signal>block_framebuffer/O_addr[21]</Signal>
+                <Signal>block_framebuffer/O_addr[20]</Signal>
+                <Signal>block_framebuffer/O_addr[19]</Signal>
+                <Signal>block_framebuffer/O_addr[18]</Signal>
+                <Signal>block_framebuffer/O_addr[17]</Signal>
+                <Signal>block_framebuffer/O_addr[16]</Signal>
+                <Signal>block_framebuffer/O_addr[15]</Signal>
+                <Signal>block_framebuffer/O_addr[14]</Signal>
+                <Signal>block_framebuffer/O_addr[13]</Signal>
+                <Signal>block_framebuffer/O_addr[12]</Signal>
+                <Signal>block_framebuffer/O_addr[11]</Signal>
+                <Signal>block_framebuffer/O_addr[10]</Signal>
+                <Signal>block_framebuffer/O_addr[9]</Signal>
             </Bus>
-            <Bus capture_enable="false" name="block_framebuffer/O_wr_data[15:0]">
+            <Bus capture_enable="false" name="block_framebuffer/O_wr_data[15:9]">
                 <Signal>block_framebuffer/O_wr_data[15]</Signal>
                 <Signal>block_framebuffer/O_wr_data[14]</Signal>
                 <Signal>block_framebuffer/O_wr_data[13]</Signal>
@@ -153,39 +182,19 @@
                 <Signal>block_framebuffer/O_wr_data[11]</Signal>
                 <Signal>block_framebuffer/O_wr_data[10]</Signal>
                 <Signal>block_framebuffer/O_wr_data[9]</Signal>
-                <Signal>block_framebuffer/O_wr_data[8]</Signal>
-                <Signal>block_framebuffer/O_wr_data[7]</Signal>
-                <Signal>block_framebuffer/O_wr_data[6]</Signal>
-                <Signal>block_framebuffer/O_wr_data[5]</Signal>
-                <Signal>block_framebuffer/O_wr_data[4]</Signal>
-                <Signal>block_framebuffer/O_wr_data[3]</Signal>
-                <Signal>block_framebuffer/O_wr_data[2]</Signal>
-                <Signal>block_framebuffer/O_wr_data[1]</Signal>
-                <Signal>block_framebuffer/O_wr_data[0]</Signal>
-            </Bus>
-            <Bus capture_enable="false" name="block_framebuffer/I_vin_data[31:16]">
-                <Signal>block_framebuffer/I_vin_data[31]</Signal>
-                <Signal>block_framebuffer/I_vin_data[30]</Signal>
-                <Signal>block_framebuffer/I_vin_data[29]</Signal>
-                <Signal>block_framebuffer/I_vin_data[28]</Signal>
-                <Signal>block_framebuffer/I_vin_data[27]</Signal>
-                <Signal>block_framebuffer/I_vin_data[26]</Signal>
-                <Signal>block_framebuffer/I_vin_data[25]</Signal>
-                <Signal>block_framebuffer/I_vin_data[24]</Signal>
-                <Signal>block_framebuffer/I_vin_data[23]</Signal>
-                <Signal>block_framebuffer/I_vin_data[22]</Signal>
-                <Signal>block_framebuffer/I_vin_data[21]</Signal>
-                <Signal>block_framebuffer/I_vin_data[20]</Signal>
-                <Signal>block_framebuffer/I_vin_data[19]</Signal>
-                <Signal>block_framebuffer/I_vin_data[18]</Signal>
-                <Signal>block_framebuffer/I_vin_data[17]</Signal>
-                <Signal>block_framebuffer/I_vin_data[16]</Signal>
             </Bus>
         </SignalList>
         <Triggers>
             <Trigger index="0">
                 <SignalList>
                     <Signal>block_framebuffer/vin_fifo_RdEn</Signal>
+                    <Bus restorename="block_framebuffer/mem_write_block_y_pixel_index[4:0]">
+                        <Signal>block_framebuffer/mem_write_block_y_pixel_index[4]</Signal>
+                        <Signal>block_framebuffer/mem_write_block_y_pixel_index[3]</Signal>
+                        <Signal>block_framebuffer/mem_write_block_y_pixel_index[2]</Signal>
+                        <Signal>block_framebuffer/mem_write_block_y_pixel_index[1]</Signal>
+                        <Signal>block_framebuffer/mem_write_block_y_pixel_index[0]</Signal>
+                    </Bus>
                 </SignalList>
             </Trigger>
             <Trigger index="1"/>
@@ -205,7 +214,7 @@
             <Trigger index="15"/>
         </Triggers>
         <MatchUnits>
-            <MatchUnit index="0" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="1" value1="0" trigger="0"/>
+            <MatchUnit index="0" enabled="1" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="100001" value1="000000" trigger="0"/>
             <MatchUnit index="1" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="2" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
             <MatchUnit index="3" enabled="0" match_type="0" counter_enable="0" counter_width="2" counter="2" countinuous="0" func="0" value0="" value1=""/>
@@ -226,5 +235,5 @@
             <Expression>M0</Expression>
         </Expressions>
     </AoCore>
-    <GAO_ID>0000011100110100</GAO_ID>
+    <GAO_ID>0110110110011000</GAO_ID>
 </GAO_CONFIG>

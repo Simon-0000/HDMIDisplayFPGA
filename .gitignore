@@ -11,3 +11,5 @@ temp/
 *.log
 
 Debug/
+TMDS_encoder.gprj
+TMDS_encoder.gprj.user
