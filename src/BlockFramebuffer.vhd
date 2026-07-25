@@ -184,18 +184,12 @@ begin
                 mem_reset_write_block_index <= '0';
                 mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
                 vin_fifo_RdEn <= '1';
-                mem_state <= PRE_BLOCK_WRITE_BURST;
               else
                 vin_fifo_RdEn <= '1'; 
                 mem_state <= WRITE_BURST;
                 O_wr_data <= vin_fifo_data_out;
               end if;
             end if;  
-            
-          elsif mem_state = PRE_BLOCK_WRITE_BURST then
-            vin_fifo_RdEn <= '1'; 
-            mem_state <= WRITE_BURST;
-            O_wr_data <= vin_fifo_data_out;
 
           elsif mem_state = READ_BURST then
             if I_rd_data_valid = '1' then 
