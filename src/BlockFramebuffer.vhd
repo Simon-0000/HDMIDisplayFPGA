@@ -62,7 +62,7 @@ component block_framebuffer_FIFO
 	);
 end component;
 
-type mem_state_type is (RW_DECISION, READ_BURST, PRE_WRITE_BURST, WRITE_BURST);
+type mem_state_type is (RW_DECISION, READ_BURST, PRE_BLOCK_WRITE_BURST, WRITE_BURST);
 signal mem_state : mem_state_type := RW_DECISION;
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
@@ -184,15 +184,18 @@ begin
                 mem_reset_write_block_index <= '0';
                 mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
                 vin_fifo_RdEn <= '1';
-                mem_state <= PRE_WRITE_BURST;
+                mem_state <= PRE_BLOCK_WRITE_BURST;
               else
-                mem_state <= PRE_WRITE_BURST;
+                vin_fifo_RdEn <= '1'; 
+                mem_state <= WRITE_BURST;
+                O_wr_data <= vin_fifo_data_out;
               end if;
             end if;  
             
-          elsif mem_state = PRE_WRITE_BURST then
-            vin_fifo_RdEn <= '0'; 
+          elsif mem_state = PRE_BLOCK_WRITE_BURST then
+            vin_fifo_RdEn <= '1'; 
             mem_state <= WRITE_BURST;
+            O_wr_data <= vin_fifo_data_out;
 
           elsif mem_state = READ_BURST then
             if I_rd_data_valid = '1' then 
@@ -215,7 +218,6 @@ begin
             
             O_wr_data <= vin_fifo_data_out;
             O_data_mask <= (others => '0'); 
-            vin_fifo_RdEn <= '1'; 
             
             if mem_burst_index = MEM_BURST_NUM - 1 then
               mem_burst_index <= (others => '0');
@@ -228,6 +230,7 @@ begin
                 mem_write_block_y_pixel_index <= mem_write_block_y_pixel_index + 1;
               end if;
             else
+              vin_fifo_RdEn <= '1';
               mem_burst_index <= mem_burst_index + 1;
             end if;
           end if;
