@@ -4,6 +4,8 @@ library ieee;
 
   entity top is
     generic(
+      H_BITS: positive := 10;
+      V_BITS: positive := 10;
       H_ACTIVE : positive := 640;
       H_FRONT_PORCH : positive := 16;
       H_SYNC : positive := 96;
@@ -130,9 +132,8 @@ library ieee;
 
   component BlockFramebuffer is
     generic(
-      BLOCK_SIZE: positive := 32;
-      H_ACTIVE : positive := 640;
-      V_ACTIVE : positive := 480
+      H_ACTIVE : positive := H_ACTIVE;
+      V_ACTIVE : positive := V_ACTIVE
     );
 
     port (
@@ -193,16 +194,16 @@ library ieee;
   
   component VideoTimingGenerator is
     generic(
-      H_BITS : positive := 10;
-      V_BITS : positive := 10;
-      H_ACTIVE : positive := 640;
-      H_FRONT_PORCH : positive := 16;
-      H_SYNC : positive := 96;
-      H_BACK_PORCH : positive := 48;
-      V_ACTIVE : positive := 480;
-      V_FRONT_PORCH : positive := 10;
-      V_SYNC : positive := 2;
-      V_BACK_PORCH : positive := 33
+      H_BITS : positive := H_BITS;
+      V_BITS : positive := V_BITS;
+      H_ACTIVE : positive := H_ACTIVE;
+      H_FRONT_PORCH : positive := H_FRONT_PORCH;
+      H_SYNC : positive := H_SYNC;
+      H_BACK_PORCH : positive := H_BACK_PORCH;
+      V_ACTIVE : positive := V_ACTIVE;
+      V_FRONT_PORCH : positive := V_FRONT_PORCH;
+      V_SYNC : positive := V_SYNC;
+      V_BACK_PORCH : positive := V_BACK_PORCH
     );
     port(
       clk: in std_logic;

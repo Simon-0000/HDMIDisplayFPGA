@@ -7,7 +7,8 @@ entity BlockFramebuffer is
     BLOCK_SIZE: positive := 32; -- in words so 32 means 32 * 2 pixels because 1 word = 2 pixels
     H_ACTIVE : positive := 640;
     V_ACTIVE : positive := 480;
-    MEM_BURST_NUM : positive := 32
+    MEM_BURST_NUM : positive := 32;
+    MEM_COMMAND_INTERVAL : positive := 43-32 --For MEM_BURST_NUM = 32, the specs require 43 clks between cmd_en commands
   );
   port (
     I_dma_clk: in std_logic;
@@ -62,7 +63,7 @@ component block_framebuffer_FIFO
 	);
 end component;
 
-type mem_state_type is (RW_DECISION, READ_BURST, PRE_BLOCK_WRITE_BURST, WRITE_BURST);
+type mem_state_type is (RW_DECISION, READ_BURST, PRE_BLOCK_WRITE_BURST, WRITE_BURST, MEM_CMD_WAIT);
 signal mem_state : mem_state_type := RW_DECISION;
 signal vin_fifo_RdEn: std_logic := '0';
 signal vin_fifo_Almost_Empty: std_logic := '0';
@@ -98,6 +99,7 @@ signal mem_reset_write_block_index : std_logic := '1';
 signal mem_write_block_y_pixel_index : unsigned(MEM_WRITE_BLOCK_PIXEL_INDEX_MSB downto 0) := (others => '0');
 signal mem_write_addr : unsigned(21 downto 0) := (others => '0');
 signal mem_burst_index : unsigned(MEM_BURST_INDEX_MSB downto 0) := (others => '0');
+signal mem_wait_counter : unsigned(4 downto 0) := (others => '0');
 
 begin
   vin_fifo: block_framebuffer_FIFO
@@ -158,6 +160,7 @@ begin
         mem_reset_write_block_index <= '1';
         mem_burst_index <= (others => '0');
         O_data_mask <= (others => '0');
+        mem_wait_counter <= (others => '0');
         mem_state <= RW_DECISION;
       else
         vin_fifo_RdEn <= '0';
@@ -197,7 +200,7 @@ begin
               vout_fifo_data_in <= I_rd_data;
               if mem_burst_index = MEM_BURST_NUM - 1 then
                 mem_burst_index <= (others => '0');
-                mem_state <= RW_DECISION;
+                mem_state <= MEM_CMD_WAIT;
               else
                 mem_burst_index <= mem_burst_index + 1;
               end if;
@@ -216,7 +219,7 @@ begin
             if mem_burst_index = MEM_BURST_NUM - 1 then
               mem_burst_index <= (others => '0');
               mem_write_addr <= mem_write_addr + (H_ACTIVE / 2);
-              mem_state <= RW_DECISION;
+              mem_state <= MEM_CMD_WAIT;
               if mem_write_block_y_pixel_index = BLOCK_SIZE - 1 then
                 mem_write_block_y_pixel_index <= (others => '0');
                 mem_reset_write_block_index <= '1';
@@ -226,6 +229,14 @@ begin
             else
               vin_fifo_RdEn <= '1';
               mem_burst_index <= mem_burst_index + 1;
+            end if;
+
+          elsif mem_state = MEM_CMD_WAIT then
+            if mem_wait_counter = MEM_COMMAND_INTERVAL - 1 then
+              mem_wait_counter <= (others => '0');
+              mem_state <= RW_DECISION;
+            else
+              mem_wait_counter <= mem_wait_counter + 1;
             end if;
           end if;
         end if;
