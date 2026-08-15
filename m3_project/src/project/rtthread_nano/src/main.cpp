@@ -106,18 +106,21 @@ void setColorCmd(int argc, char **argv)
 
 void setAnimationCmd(int argc, char **argv)
 {
-	for (int i = 0; i < 255; i++) {
-		setScreenColor(((255 - i) << 16) | (i << 8) | 0);
+//	for (int i = 0; i < 255; i++) {
+//		setScreenColor(((255 - i) << 16) | (i << 8) | 0);
+//	}
+//
+//	for (int i = 0; i < 255; i++) {
+//		setScreenColor(0 | ((255 - i) << 8) | i);
+//	}
+//
+//	for (int i = 0; i < 255; i++) {
+//		setScreenColor((i << 16) | 0 | (255 - i));
+//	}
+	for (int i = 0; i < 20; i++) {
+		setScreenColor(0xFFFFFF);
+		setScreenColor(0x000000);
 	}
-
-	for (int i = 0; i < 255; i++) {
-		setScreenColor(0 | ((255 - i) << 8) | i);
-	}
-
-	for (int i = 0; i < 255; i++) {
-		setScreenColor((i << 16) | 0 | (255 - i));
-	}
-
 }
 void pong(int argc, char **argv)
 {

@@ -47,6 +47,7 @@ architecture structural of BlockFramebuffer is
     return i;
   end function;
 
+
 component block_framebuffer_FIFO
 	port (
 		Data: in std_logic_vector(31 downto 0);
@@ -62,7 +63,6 @@ component block_framebuffer_FIFO
 		Full: out std_logic
 	);
 end component;
-
 type mem_state_type is (RW_DECISION, READ_BURST, PRE_BLOCK_WRITE_BURST, WRITE_BURST, MEM_CMD_WAIT);
 signal mem_state : mem_state_type := RW_DECISION;
 signal vin_fifo_RdEn: std_logic := '0';
@@ -81,7 +81,7 @@ signal vout_fifo_Full: std_logic := '0';
 signal vout_fifo_data_out: std_logic_vector(31 downto 0);
 signal vout_fifo_RdEn : std_logic := '0';
 signal vout_read_low_bits : std_logic := '0';
-
+signal first_vsync_happened : std_logic := '0'; --TODO Revisit this logic, it doesnt seem to do much
 signal mem_write_priority : unsigned(4 downto 0);
 signal mem_read_priority : unsigned(4 downto 0);
 signal rw_alternate : std_logic := '0';
@@ -132,7 +132,7 @@ begin
       Full => vout_fifo_Full
     );
 
-  O_vin_fifo_full <= vin_fifo_Full;
+  O_vin_fifo_full <= vin_fifo_Almost_Full;
   O_vout_fifo_empty <= vout_fifo_Empty;
   
   mem_read_priority(0) <= not(rw_alternate);
@@ -183,17 +183,15 @@ begin
               end if;
 
             elsif (mem_write_priority > mem_read_priority) and (vin_fifo_Almost_Empty = '0') then 
+              vin_fifo_RdEn <= '1'; 
               if mem_reset_write_block_index = '1' then 
                 mem_reset_write_block_index <= '0';
                 mem_write_addr <= unsigned(vin_fifo_data_out(21 downto 0));
-                vin_fifo_RdEn <= '1';
               else
-                vin_fifo_RdEn <= '1'; 
                 mem_state <= WRITE_BURST;
-                O_wr_data <= vin_fifo_data_out;
               end if;
             end if;  
-
+         
           elsif mem_state = READ_BURST then
             if I_rd_data_valid = '1' then 
               vout_fifo_WrEn <= '1';
@@ -257,18 +255,28 @@ begin
     end if;
   end process;
 
-  vout_fifo_RdEn <= I_vout_de and vout_read_low_bits; 
+  vout_fifo_RdEn <= I_vout_de and vout_read_low_bits and first_vsync_happened; 
   
   process(I_vout_clk)
   begin
     if rising_edge(I_vout_clk) then
-      if vout_read_low_bits = '0' then
-        O_vout_data <= vout_fifo_data_out(15 downto 0);
+      if (I_rst = '1') then
+        first_vsync_happened <= '0';
       else
-        O_vout_data <= vout_fifo_data_out(31 downto 16);
+        if vout_read_low_bits = '0' then
+          O_vout_data <= vout_fifo_data_out(15 downto 0);
+        else
+          O_vout_data <= vout_fifo_data_out(31 downto 16);
+        end if;
+        O_vout_vs_hs <= I_vout_vs_hs;
+        if (I_vout_vs_hs(1) = '1') and  (vout_fifo_Empty = '0') then
+          first_vsync_happened <= '1';
+        elsif vout_fifo_Empty = '1' then
+          first_vsync_happened <= '0';
+        end if;
+        
+        O_vout_de    <= I_vout_de;
       end if;
-      O_vout_vs_hs <= I_vout_vs_hs;
-      O_vout_de    <= I_vout_de;
     end if;
   end process;
 

@@ -18,7 +18,6 @@
 -fbdiv_sel 4
 -dyn_odiv_sel false
 -odiv_sel 8
--dyn_sdiv_sel 2
 -dyn_da_en true
 -rst_sig true
 -rst_sig_p false
@@ -30,7 +29,6 @@
 -clkout_ft_dir 1
 -en_clkoutp false
 -clkoutp_bypass false
--en_clkoutd true
+-en_clkoutd false
 -clkoutd_bypass false
--clkoutd_src CLKOUT
 -en_clkoutd3 false

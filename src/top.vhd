@@ -48,7 +48,6 @@ library ieee;
     port (
       clkout: out std_logic;
       lock: out std_logic;
-      clkoutd: out std_logic;
       reset: in std_logic;
       clkin: in std_logic
     );
@@ -316,7 +315,6 @@ library ieee;
     port map (
         clkout => clk_hyperram_in_temp,
         lock => pllvr_hyperram_lock,
-        clkoutd => clk_hyperram_out_temp,
         reset => reset,
         clkin => clk
     );
@@ -338,6 +336,12 @@ library ieee;
       O=>clk_pixel_buffered,
       I=>clk_pixel_temp
      );
+    bufg_clk_hyperram:BUFG
+      port map(
+      O=>clk_hyperram_out_buffered,
+      I=>clk_hyperram_out_temp
+     );
+
 
 --    HYPERRAM 
     process(clk)
@@ -373,7 +377,7 @@ library ieee;
       cmd => arbiter_cmd,
       cmd_en => arbiter_cmd_en,
       init_calib => init_calib,
-      clk_out => clk_hyperram_out_buffered,
+      clk_out => clk_hyperram_out_temp,
       data_mask => arbiter_data_mask
     );
 
@@ -428,7 +432,7 @@ library ieee;
       reset_n => resetn
     );
 
-process (master_pclk)
+    process (master_pclk)
     begin
       if rising_edge(master_pclk) then
         if master_prst = '0' then
@@ -442,7 +446,6 @@ process (master_pclk)
           if master_psel1 = '1' and master_penable = '1' and master_pwrite = '1' then
             if master_paddr(7 downto 0) = "00000000" then
               mcu_vin_data <= master_pwdata;
-              -- Only write if the FIFO actually has room and the APB is ready
               if vin_framebuffer_fifo_full = '0' then
                 mcu_wr_enable <= '1';
               end if;
